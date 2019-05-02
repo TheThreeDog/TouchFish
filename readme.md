@@ -29,7 +29,7 @@
 > CET4 no pass, translate not good , please excuse .
 ## Project Name
 - TouchFish
-> Let TouchFish like braeat
+> Let TouchFish like braeath
 
 ## Project Background
 - I in Beijing just find a job, morning nine evening nine. Three days later, i can't stand it. This strength let me a little meng B, If i not touch fish , one day continue working for 12 hours who can hold on....   
