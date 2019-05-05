@@ -13,6 +13,7 @@
 import os
 import threading
 import itchat
+import time
 from itchat.content import *
 
 # 通过用户名获取ID，后期通过ID发送消息
@@ -28,6 +29,7 @@ def getIdByUserName(name):
 
 @itchat.msg_register(itchat.content.TEXT) # 注册消息，如果有消息收到，执行此函数。
 def recv_msg(msg):
+    print(msg)
     if msg['ToUserName'] != selfUserName:
         return None
     name = msg.FromUserName
@@ -39,7 +41,7 @@ def recv_msg(msg):
                 username = user_dict[chat_id]['RemarkName']
                 if username == '':
                     username = user_dict[chat_id]['NickName']
-                    print("【{}】{} ===> 我：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Texxt))
+                    print("【{}】{} ===> 我：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
             else:
                 username = msg['NickName']
                 print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
@@ -105,13 +107,15 @@ def cd(arg):
             c_id = int(arg[0])
             current_chat_id = c_id
             user = user_dict[current_chat_id]
+            cls(None)
             # 进来后，先把队列当中的消息显示出来
             while len(msg_list[c_id]) != 0:
                 msg = msg_list[c_id].pop()
-                username = msg['NickName']
+                username = user_dict[c_id]['RemarkName']
+                if username == '':
+                    username = user_dict[c_id]['NickName']
                 print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
 
-            cls(None)
             while True:
                 name = user.RemarkName
                 if name == '':
@@ -234,5 +238,10 @@ get_chatrooms : 返回完整的群聊列表.
 search_chatrooms : 群聊搜索.
 update_chatroom : 获取群聊用户列表或更新该群聊.
 memberList = itchat.update_chatroom('@@abcdefg1234567', detailedMember=True)
+
+msg:
+{'VoiceLength': 0, 'MsgType': 1, 'Type': 'Text', 'FromUserName': '@92f11606bce53a6363bef288374179e2ab88a1ef045fa56252ab3dbee23b4a18', 'NewMsgId': 8717003480232085925, 'Url': '', 'StatusNotifyUserName': '', 'MediaId': '', 'FileSize': '', 'Content': '发什么', 'Ticket': '', 'Text': '发什么', 'ToUserName': '@61ed504db10ac7cf1ba777384ef94cf8d3134486e1ccbfac853e6c1bf7cab5a8', 'ImgWidth': 0, 'MsgId': '8717003480232085925', 'Status': 3, 'EncryFileName': '', 'ImgStatus': 1, 'StatusNotifyCode': 0, 'AppInfo': {'AppID': '', 'Type': 0}, 'PlayLength': 0, 'HasProductId': 0, 'RecommendInfo': {'VerifyFlag': 0, 'OpCode': 0, 'NickName': '', 'Ticket': '', 'UserName': '', 'Content': '', 'Scene': 0, 'AttrStatus': 0, 'Alias': '', 'Sex': 0, 'Province': '', 'Signature': '', 'QQNum': 0, 'City': ''}, 'OriContent': '', 'ImgHeight': 0, 'User': <User: {'Uin': 0, 'Statues': 0, 'UserName': '@92f11606bce53a6363bef288374179e2ab88a1ef045fa56252ab3dbee23b4a18', 'HeadImgUrl': '/cgi-bin/mmwebwx-bin/webwxgeticon?seq=685068817&username=@92f11606bce53a6363bef288374179e2ab88a1ef045fa56252ab3dbee23b4a18&skey=@crypt_126596ce_c3c7d1f500bed8cb9c2e2190c2188bba', 'MemberList': <ContactList: []>, 'KeyWord': '', 'PYQuanPin': '54F3yiciguoxiaofendui2hao', 'MemberCount': 0, 'AppAccountFlag': 0, 'ChatRoomId': 0, 'IsOwner': 0, 'AttrStatus': 102501, 'Sex': 2, 'ContactFlag': 3, 'RemarkPYQuanPin': 'zeze', 'PYInitial': '54F3YCGXFD2H', 'NickName': '5.4F3一次过小分队2号', 'EncryChatRoomId': '', 'SnsFlag': 1, 'HideInputBarFlag': 0, 'DisplayName': '', 'VerifyFlag': 0, 'StarFriend': 0, 'RemarkPYInitial': 'ZZ', 'Province': '山西', 'RemarkName': '泽泽', 'Alias': '', 'Signature': '', 'UniFriend': 0, 'City': '临汾', 'OwnerUin': 0}>, 'ForwardFlag': 0, 'CreateTime': 1557062982, 'SubMsgType': 0, 'AppMsgType': 0, 'FileName': ''}
+
+
 
 '''
