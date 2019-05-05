@@ -28,7 +28,6 @@ def getIdByUserName(name):
 
 @itchat.msg_register(itchat.content.TEXT) # 注册消息，如果有消息收到，执行此函数。
 def recv_msg(msg):
-    print(msg)
     if msg['ToUserName'] != selfUserName:
         return None
     name = msg.FromUserName
@@ -40,13 +39,12 @@ def recv_msg(msg):
                 username = user_dict[chat_id]['RemarkName']
                 if username == '':
                     username = user_dict[chat_id]['NickName']
-                    print("【{}】{} ===> 我：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.text))
+                    print("【{}】{} ===> 我：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Texxt))
             else:
                 username = msg['NickName']
-                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.text))
+                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
         else:                           # 如果没有正在聊天，则把消息加到消息队列中
             msg_list[chat_id].append(msg)
-    print(msg)
     return None
 
 # 构建一个字典，接收到的消息存放在此字典中，字典键是名字，值是一个列表，用于存放N条信息
@@ -56,45 +54,81 @@ current_chat_id = -1
 # 记录自己的用户名
 selfUserName = ""
 
-
 def ls(arg):
     '''
     获取最新消息列表
     '''
-    print(arg)
+    # print(arg)
     if len(arg) == 0:         # ls 没有参数：获取所有消息列表
-        if len(msg_list) == 0:
+        # print("msgList : " ,msg_list)
+        max_count = max(len(x) for x in msg_list.values())
+        if max_count == 0:
             print("消息列表为空")
-        for i in msg_list:
-            # 个人消息
-            if i in user_dict:
-                name = user_dict[i]['RemarkName']
-                if name == '':
-                    name = user_dict[i]['NickName']
-                print(" {:^4} 发来 {:^3} 条未读消息\{id:{:^3}\}".format(name,len(msg_list[i]),i))
-            # 群聊消息
-            elif i in room_dict:
-                name = room_dict[i]['NichName']
-                print(" {:^4} 发来 {:^3} 条未读消息\{id:{}\}".format(name,len(msg_list[i]),i))
+        else:
+            for i in msg_list:
+                if len(msg_list[i]) != 0 :  # 消息列表必须不为空
+                    # 个人消息
+                    if i in user_dict:
+                        name = user_dict[i]['RemarkName']
+                        if name == '':
+                            name = user_dict[i]['NickName']
+                        print(" {:^10} 发来 {:^3} 条未读消息【id:{:^3} 】".format(name,len(msg_list[i]),i))
+                    # 群聊消息
+                    # elif i in room_dict:
+                    #     name = room_dict[i]['NichName']
+                    #     print(" {:^4} 发来 {:^3} 条未读消息【id:{} 】".format(name,len(msg_list[i]),i))
 
     elif arg[0] == '-f':    # ls -f 好友列表
         print("好友列表：")
         for user_index in user_dict:
-            if user_index not in msg_list:
-                msg_list[user_index] = []
             name = user_dict[user_index]['RemarkName']
             if name == '':
                 name = user_dict[user_index]['NickName']
             print(" {:^4}：{:^3} ".format(user_index,name))
 
-    elif arg[0] == '-r':    # ls -r 群聊列表
-        for room_index in room_dict:
-            if room_index not in msg_list:
-                msg_list[room_index] = []
-            name = room_dict[room_index]['NickName']
-            print(" {:^4}：{:^3} ".format(room_index,name))
+    # elif arg[0] == '-r':    # ls -r 群聊列表
+    #     for room_index in room_dict:
+    #         name = room_dict[room_index]['NickName']
+    #         print(" {:^4}：{:^3} ".format(room_index,name))
     else :
         print('参数错误，请重试')
+
+def cd(arg):
+    if len(arg) == 0 :
+        print("cd命令需要参数")
+        return
+    elif arg[0] == '..':
+        # 返回主页
+        return
+    else:
+        try:
+            c_id = int(arg[0])
+            current_chat_id = c_id
+            user = user_dict[current_chat_id]
+            # 进来后，先把队列当中的消息显示出来
+            while len(msg_list[c_id]) != 0:
+                msg = msg_list[c_id].pop()
+                username = msg['NickName']
+                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
+
+            cls(None)
+            while True:
+                name = user.RemarkName
+                if name == '':
+                    name = user.NickName
+                print(" 与 {} 聊天中 >>> ".format(name),end = '')
+                msg = input()
+                if msg != 'cd ..':
+                    itchat.send(msg,toUserName=user.UserName) # 将信息发送给user
+                else:
+                    # 退出聊天，把当前聊天的id置为-1
+                    current_chat_id = -1
+                    break
+
+        except Exception as e:
+            print(e)
+            print('参数错误，请重试')
+            return
 
 
 def find(arg):
@@ -111,46 +145,44 @@ def find(arg):
         if arg[0] in user_dict[i]['RemarkName'] or arg[0] in user_dict[i]['NickName']:
             print(" {:^4}：{:^4}  {:^4} ".format(i,user_dict[i]['RemarkName'],user_dict[i]['NickName']))
 
-    print("查找到以下群聊：")
-    for i in room_dict:
-        if arg[0] in room_dict[i]['NickName']:
-            print(" {:^4}：{:^4} ".format(i,room_dict[i]['NickName']))
+    # print("查找到以下群聊：")
+    # for i in room_dict:
+    #     if arg[0] in room_dict[i]['NickName']:
+    #         print(" {:^4}：{:^4} ".format(i,room_dict[i]['NickName']))
 
 
-def cls(arg): #清屏 参数是为了调用时保持一致
+def cls(arg): #清屏
     print("\033c",end='')
 
 
 # 回调：命令与处理函数绑定，方便后期动态扩展
-callBack = [
-    'ls',   #:ls,
-    'find', #: + name 后面跟参数名称，查询好友或群聊，在微信号和备注中查找，返回所有存在指定字符串的结果
-    'cd',   #: + chat_id 后面跟参数id，指定进入的聊天室',
-    'cls',  #:cls,
-]
-
-
-def ec():
-    itchat.logout()
-
+callBack = {
+    'ls':ls,
+    'find':find,
+    'cd':cd,
+    'cls':cls,
+}
 
 # 主程序
 if __name__ == '__main__':
     try:
-        itchat.auto_login(hotReload=True,enableCmdQR = 2,exitCallback=ec) #登录并记录登录状态
+        itchat.auto_login(hotReload=True,enableCmdQR = 2,exitCallback=itchat.logout) #登录并记录登录状态
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
-        user_list = itchat.get_friends()   # 获取好友
+        user_list = itchat.get_friends()    # 获取好友
         selfUserName = user_list[0]['UserName']
-        room_list = itchat.get_chatrooms() # 获取群聊
+        # room_list = itchat.get_chatrooms()  # 获取群聊
+        msg_list  = {}                       # 消息列表为空
         user_dict = {}
-        room_dict = {}
+        # room_dict = {}
         chat_id = 0
         for user in user_list:
-            user_dict[chat_id] = user# id 和昵称存储用户信息
+            user_dict[chat_id] = user       # id 和昵称存储用户信息
+            msg_list[chat_id] = []
             chat_id += 1
-        for room in room_list:
-            room_dict[chat_id] = room
-            chat_id += 1
+        # for room in room_list:
+        #     room_dict[chat_id] = room
+        #     msg_list[chat_id] = []
+        #     chat_id += 1
 
         while True:
             print(">>> ",end = '')
@@ -158,7 +190,7 @@ if __name__ == '__main__':
             if cmd == '':    # 输入无效内容，直接跳过
                 continue
             if cmd == 'exit':
-                ec()
+                itchat.logout()
                 break
             cmd = cmd.split(' ') # 命令去除前后空格后按空格分割
             if cmd[0] not in callBack:
@@ -167,7 +199,7 @@ if __name__ == '__main__':
             callBack[cmd[0]](cmd[1:]) # 调用cmd所匹配的函数
     except Exception as e:
         print(e)
-        ec()
+        itchat.logout()
 
 
 
@@ -202,7 +234,5 @@ get_chatrooms : 返回完整的群聊列表.
 search_chatrooms : 群聊搜索.
 update_chatroom : 获取群聊用户列表或更新该群聊.
 memberList = itchat.update_chatroom('@@abcdefg1234567', detailedMember=True)
-
-
 
 '''
