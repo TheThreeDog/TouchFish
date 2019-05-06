@@ -16,22 +16,67 @@ import itchat
 import time
 from itchat.content import *
 
+
+# 构建一个字典，接收到的消息存放在此字典中，字典键是名字，值是一个列表，用于存放N条信息
+msg_list = {}
+# 全局int变量用于记录当前正在和谁聊天，为-1时表示不在聊天状态
+current_chat_id = -1
+# 好友和群聊的分界
+first_room_id = 0
+# 记录自己的用户名
+selfUserName = ""
+# 类型字典
+msg_list  = {}                       # 消息列表为空
+user_dict = {}
+type_dict = {
+    'Map':'[定位]',
+    'Card':'[好友推荐]',
+    'Note':'[NOTE]',
+    'Sharing':'[公众号文章]',
+    'Picture':'[图片]',
+    'Recording':'[聊天记录]',
+    'Attachment':'[文件]',
+    'Video':'[语音]'
+}
+
+
 # 通过用户名获取ID，后期通过ID发送消息
 def getIdByUserName(name):
     for i in user_dict:
         if user_dict[i]['UserName'] == name:
             return i
-    for i in room_dict:
-        if room_dict[i]['ChatroomName'] == name:
-            return i
+    # for i in room_dict:
+    #     if room_dict[i]['ChatroomName'] == name:
+    #         return i
     return -1
 
+@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
+def recv_group_msg(msg):
+    # 群聊消息直接展示
+    room_id = getIdByUserName(msg.FromUserName)
+    if room_id == -1 :
+        return
+    room = user_dict[room_id]
+    # 群聊信息打包成数据放入消息队列当中
+    chat_msg = {}
+    chat_msg['CreateTime'] = msg.CreateTime
+    chat_msg['Text'] = msg.Text
+    if msg.Type in type_dict:
+        print("MSGTEXT::: ",msg.Text)
+        chat_msg['Text'] = type_dict[msg.Type]
+    chat_msg['NickName'] = msg.ActualNickName
+    print("groupMsg：",msg.text,msg.Type,room.NickName)
+    msg_list[room_id].insert(0,chat_msg) # 当做队列
 
-@itchat.msg_register(itchat.content.TEXT) # 注册消息，如果有消息收到，执行此函数。
+
+@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=False) # 注册消息，如果有消息收到，执行此函数。
 def recv_msg(msg):
-    print(msg)
+    if msg['FromUserName'] == 'newsapp': # 腾讯新闻
+        return
     if msg['ToUserName'] != selfUserName:
         return None
+    if msg['Type'] in type_dict:
+        msg.Text = type_dict[msg['Type']]
     name = msg.FromUserName
     # 把消息加到消息队列当中
     chat_id = getIdByUserName(name)
@@ -46,15 +91,8 @@ def recv_msg(msg):
                 username = msg['NickName']
                 print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
         else:                           # 如果没有正在聊天，则把消息加到消息队列中
-            msg_list[chat_id].append(msg)
+            msg_list[chat_id].insert(0,msg)
     return None
-
-# 构建一个字典，接收到的消息存放在此字典中，字典键是名字，值是一个列表，用于存放N条信息
-msg_list = {}
-# 全局int变量用于记录当前正在和谁聊天，为-1时表示不在聊天状态
-current_chat_id = -1
-# 记录自己的用户名
-selfUserName = ""
 
 def ls(arg):
     '''
@@ -86,7 +124,10 @@ def ls(arg):
             name = user_dict[user_index]['RemarkName']
             if name == '':
                 name = user_dict[user_index]['NickName']
-            print(" {:^4}：{:^3} ".format(user_index,name))
+            if user_index >= first_room_id:# 说明是群聊
+                print(" {:^4}：【群聊】{:^3} ".format(user_index,name))
+            else:
+                print(" {:^4}：{:^3} ".format(user_index,name))
 
     # elif arg[0] == '-r':    # ls -r 群聊列表
     #     for room_index in room_dict:
@@ -114,7 +155,7 @@ def cd(arg):
                 username = user_dict[c_id]['RemarkName']
                 if username == '':
                     username = user_dict[c_id]['NickName']
-                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
+                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg['CreateTime'])),username,msg['Text']))
 
             while True:
                 name = user.RemarkName
@@ -144,10 +185,13 @@ def find(arg):
         print("参数错误，请重试")
         return
 
-    print("查找到以下好友：")
+    print("查找到以下好友|群聊：")
     for i in user_dict:
         if arg[0] in user_dict[i]['RemarkName'] or arg[0] in user_dict[i]['NickName']:
-            print(" {:^4}：{:^4}  {:^4} ".format(i,user_dict[i]['RemarkName'],user_dict[i]['NickName']))
+            if i >= first_room_id:# 说明是群聊
+                print(" {:^4}：【群聊】{:^4}  {:^4} ".format(i,user_dict[i]['RemarkName'],user_dict[i]['NickName']))
+            else:
+                print(" {:^4}：{:^4}  {:^4} ".format(i,user_dict[i]['RemarkName'],user_dict[i]['NickName']))
 
     # print("查找到以下群聊：")
     # for i in room_dict:
@@ -174,19 +218,19 @@ if __name__ == '__main__':
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
         user_list = itchat.get_friends()    # 获取好友
         selfUserName = user_list[0]['UserName']
-        # room_list = itchat.get_chatrooms()  # 获取群聊
-        msg_list  = {}                       # 消息列表为空
-        user_dict = {}
+        room_list = itchat.get_chatrooms()  # 获取群聊
         # room_dict = {}
         chat_id = 0
         for user in user_list:
             user_dict[chat_id] = user       # id 和昵称存储用户信息
             msg_list[chat_id] = []
             chat_id += 1
-        # for room in room_list:
-        #     room_dict[chat_id] = room
-        #     msg_list[chat_id] = []
-        #     chat_id += 1
+        for room in room_list:
+            if first_room_id == 0:
+                first_room_id = chat_id
+            user_dict[chat_id] = room
+            msg_list[chat_id] = []
+            chat_id += 1
 
         while True:
             print(">>> ",end = '')
