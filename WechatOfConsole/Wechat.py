@@ -10,6 +10,11 @@
     # 'find -remarkname':'通过备注查找',
     # 'cd ':'进入聊天',
     # 'cd ..':'返回上一级',
+# Requests：
+    # 待开发需求：
+    # １、中文删除存在BUG
+    # ２、上下左右光标不能移动
+    # 3、文字编辑过程中，新来的消息会干扰输入
 import os
 import threading
 import itchat
@@ -63,15 +68,23 @@ def recv_group_msg(msg):
     chat_id = getIdByUserName(msg.FromUserName)
     if chat_id != -1:
         # print("chat_id : {} current_chat_id : {}".format(chat_id,current_chat_id))
-        if chat_id == current_chat_id : # 如果这时我正在和这个人聊天
+        if chat_id == current_chat_id : # 如果这时我正在这个群里聊天
             if chat_id in user_dict:
-                print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),msg.ActualNickName,msg.Text),end="")
+                user_id =  getIdByUserName(msg.ActualUserName)
+                username = msg.ActualNickName
+                if user_id != -1:
+                    username = user_dict[user_id].RemarkName
+                print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
         else: # 如果没有正在聊天，则把消息加到消息队列中  群聊消息不能直接用msg。重新封装一下
             chat_msg = {}
             chat_msg['CreateTime'] = msg.CreateTime
             chat_msg['Text'] = msg.Text
             chat_msg['NickName'] = msg.ActualNickName
+            # 如果说话的这个人在自己的好友列表里，把它的名字换成备注
+            user_id =  getIdByUserName(msg.ActualUserName)
             chat_msg['RemarkName'] = msg.ActualNickName
+            if user_id != -1:
+                chat_msg['RemarkName'] = user_dict[user_id].RemarkName
             msg_list[chat_id].insert(0,chat_msg)
     return None
 
