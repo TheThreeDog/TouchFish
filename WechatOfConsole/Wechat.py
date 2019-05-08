@@ -3,20 +3,25 @@
 # Thanks     : 底层使用itchat ：https://github.com/littlecodersh/itchat
 # Function   : 在控制台使用微信，通过接口调用，接收并发送消息。 接收端需要一个线程来itchat.run()执行。
 # Remark     : 仅支持文字消息，尽可能保持微信的用户体验
-    # 'ls':ls,
-    # 'ls -f':'好友列表',
-    # 'ls -r':'群聊列表',
-    # 'find -name':'通过姓名查找',
-    # 'find -remarkname':'通过备注查找',
-    # 'cd ':'进入聊天',
-    # 'cd ..':'返回上一级',
+    # 'ls': 显示所有未读消息,
+    # 'ls -f':显示所有的好友|群聊列表,
+    # 'find XXX':通过姓名查找模糊查找好友或群聊,
+    # 'cd {id}':进入与id为{id}的用户或群聊聊天,
+    # 'cd ..':退出当前聊天返回上一级,
+# Requests：
+    # 待开发需求：
+    # １、中文删除存在BUG
+    # ２、上下左右光标不能移动
+    # 3、文字编辑过程中，新来的消息会干扰输入
 import os
 import threading
 import itchat
 import time
+import re
 from itchat.content import *
 
-
+# linux常用命令，用于防止用户误输入被发送到聊天
+cmd_list = ['pwd','ls','cd','grep','touch','rm','exit','bye','rm','vi',':wq',':q!',':Q!','cat','cp','mv','rmdir','mk','git','cls','clear','find']
 # 构建一个字典，接收到的消息存放在此字典中，字典键是名字，值是一个列表，用于存放N条信息
 msg_list = {}
 # 全局int变量用于记录当前正在和谁聊天，为-1时表示不在聊天状态
@@ -30,13 +35,13 @@ msg_list  = {}                       # 消息列表为空
 user_dict = {}
 type_dict = {
     'Map':'[定位]',
-    'Card':'[好友推荐]',
-    'Note':'[NOTE]',
-    'Sharing':'[公众号文章]',
+    'Card':'[名片推荐]',
+    'Note':'[系统消息]',
+    'Sharing':'[公众号链接]',
     'Picture':'[图片]',
-    'Recording':'[聊天记录]',
+    'Recording':'[语音]',
     'Attachment':'[文件]',
-    'Video':'[语音]'
+    'Video':'[视频]'
 }
 
 
@@ -52,44 +57,57 @@ def getIdByUserName(name):
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
 def recv_group_msg(msg):
-    # 群聊消息直接展示
-    room_id = getIdByUserName(msg.FromUserName)
-    if room_id == -1 :
+    # 屏蔽腾讯新闻
+    if msg['FromUserName'] == 'newsapp': # 腾讯新闻
         return
-    room = user_dict[room_id]
-    # 群聊信息打包成数据放入消息队列当中
-    chat_msg = {}
-    chat_msg['CreateTime'] = msg.CreateTime
-    chat_msg['Text'] = msg.Text
+    # 过滤除了文字以外的消息
     if msg.Type in type_dict:
-        print("MSGTEXT::: ",msg.Text)
-        chat_msg['Text'] = type_dict[msg.Type]
-    chat_msg['NickName'] = msg.ActualNickName
-    print("groupMsg：",msg.text,msg.Type,room.NickName)
-    msg_list[room_id].insert(0,chat_msg) # 当做队列
+        msg.Text = type_dict[msg['Type']]
+    chat_id = getIdByUserName(msg.FromUserName)
+    if chat_id != -1:
+        # print("chat_id : {} current_chat_id : {}".format(chat_id,current_chat_id))
+        if chat_id == current_chat_id : # 如果这时我正在这个群里聊天
+            if chat_id in user_dict:
+                user_id =  getIdByUserName(msg.ActualUserName)
+                username = msg.ActualNickName
+                if user_id != -1:
+                    username = user_dict[user_id].RemarkName
+                print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
+        else: # 如果没有正在聊天，则把消息加到消息队列中  群聊消息不能直接用msg。重新封装一下
+            chat_msg = {}
+            chat_msg['CreateTime'] = msg.CreateTime
+            chat_msg['Text'] = msg.Text
+            chat_msg['NickName'] = msg.ActualNickName
+            # 如果说话的这个人在自己的好友列表里，把它的名字换成备注
+            user_id =  getIdByUserName(msg.ActualUserName)
+            chat_msg['RemarkName'] = msg.ActualNickName
+            if user_id != -1:
+                chat_msg['RemarkName'] = user_dict[user_id].RemarkName
+            msg_list[chat_id].insert(0,chat_msg)
+    return None
 
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=False) # 注册消息，如果有消息收到，执行此函数。
 def recv_msg(msg):
+    global current_chat_id
     if msg['FromUserName'] == 'newsapp': # 腾讯新闻
         return
+    if msg['ToUserName'] == 'filehelper': # 发给文件助手
+        return
     if msg['ToUserName'] != selfUserName:
-        return None
+        return
     if msg['Type'] in type_dict:
         msg.Text = type_dict[msg['Type']]
-    name = msg.FromUserName
     # 把消息加到消息队列当中
-    chat_id = getIdByUserName(name)
+    chat_id = getIdByUserName(msg.FromUserName)
     if chat_id != -1:
-        if chat_id == current_chat_id : # 如果这时我正在和这个人聊天
+        # print("chat_id : {} current_chat_id : {}".format(chat_id,current_chat_id))
+        if int(chat_id) == int(current_chat_id) : # 如果这时我正在和这个人聊天
             if chat_id in user_dict:
                 username = user_dict[chat_id]['RemarkName']
                 if username == '':
                     username = user_dict[chat_id]['NickName']
-                    print("【{}】{} ===> 我：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
-            else:
-                username = msg['NickName']
-                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text))
+                    print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
         else:                           # 如果没有正在聊天，则把消息加到消息队列中
             msg_list[chat_id].insert(0,msg)
     return None
@@ -112,7 +130,7 @@ def ls(arg):
                         name = user_dict[i]['RemarkName']
                         if name == '':
                             name = user_dict[i]['NickName']
-                        print(" {:^10} 发来 {:^3} 条未读消息【id:{:^3} 】".format(name,len(msg_list[i]),i))
+                        print("【id:{:^3} 】 {:^10} 发来 {:^3} 条未读消息".format(i,name,len(msg_list[i])))
                     # 群聊消息
                     # elif i in room_dict:
                     #     name = room_dict[i]['NichName']
@@ -137,6 +155,7 @@ def ls(arg):
         print('参数错误，请重试')
 
 def cd(arg):
+    global current_chat_id
     if len(arg) == 0 :
         print("cd命令需要参数")
         return
@@ -152,9 +171,13 @@ def cd(arg):
             # 进来后，先把队列当中的消息显示出来
             while len(msg_list[c_id]) != 0:
                 msg = msg_list[c_id].pop()
-                username = user_dict[c_id]['RemarkName']
-                if username == '':
-                    username = user_dict[c_id]['NickName']
+                # 如果是群聊，username从msg中获取
+                if current_chat_id >= first_room_id:
+                    username = msg['NickName']
+                else:
+                    username = user['RemarkName']
+                    if username == '':
+                        username = user['NickName']
                 print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg['CreateTime'])),username,msg['Text']))
 
             while True:
@@ -163,12 +186,20 @@ def cd(arg):
                     name = user.NickName
                 print(" 与 {} 聊天中 >>> ".format(name),end = '')
                 msg = input()
-                if msg != 'cd ..':
-                    itchat.send(msg,toUserName=user.UserName) # 将信息发送给user
-                else:
+                if msg == 'cd ..':
                     # 退出聊天，把当前聊天的id置为-1
                     current_chat_id = -1
                     break
+                # 如果输入内容包含疑似cmd字符串，这个len不为0
+                if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
+                    print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
+                    res = input()
+                    if res == 'y' or res == '\n':
+                        pass
+                    else:
+                        continue
+                # 如果能走到这一步就发送数据
+                itchat.send(msg,toUserName=user.UserName) # 将信息发送给user
 
         except Exception as e:
             print(e)
