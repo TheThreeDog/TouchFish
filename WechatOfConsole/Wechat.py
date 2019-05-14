@@ -8,7 +8,8 @@
     # 'find XXX':通过姓名查找模糊查找好友或群聊,
     # 'cd {id}':进入与id为{id}的用户或群聊聊天,
     # 'cd ..':退出当前聊天返回上一级,
-    # 'cls'：清空屏幕,
+    # 'cls'：清空屏幕
+    # 'exit'：退出程序,,
 # Requests：
     # 待开发需求：
     # １、中文删除存在BUG
@@ -18,6 +19,7 @@
     #   1、设置中英文切换
     #   2、用文件保存设置
     #   3、
+    # 5、新开发自动回复功能
 import os
 import threading
 import itchat
@@ -98,6 +100,7 @@ def recv_msg(msg):
     if msg['FromUserName'] == 'newsapp': # 腾讯新闻
         return
     if msg['ToUserName'] == 'filehelper': # 发给文件助手
+        print(msg)
         return
     if msg['ToUserName'] != selfUserName:
         return
@@ -112,7 +115,7 @@ def recv_msg(msg):
                 username = user_dict[chat_id]['RemarkName']
                 if username == '':
                     username = user_dict[chat_id]['NickName']
-                    print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
+                print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
         else:                           # 如果没有正在聊天，则把消息加到消息队列中
             msg_list[chat_id].insert(0,msg)
     return None
