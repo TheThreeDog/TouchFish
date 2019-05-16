@@ -100,11 +100,11 @@ def recv_msg(msg):
     if msg['FromUserName'] == 'newsapp': # 腾讯新闻
         return
     if msg['ToUserName'] == 'filehelper': # 发给文件助手
-        print(msg)
+        # print(msg)
         return
     if msg['ToUserName'] != selfUserName:
         return
-    if msg['Type'] in type_dict:
+    if msg.Type in type_dict:
         msg.Text = type_dict[msg['Type']]
     # 把消息加到消息队列当中
     chat_id = getIdByUserName(msg.FromUserName)
@@ -210,7 +210,7 @@ def cd(arg):
                 itchat.send(msg,toUserName=user.UserName) # 将信息发送给user
 
         except Exception as e:
-            print(e)
+            # print(e)
             print('参数错误，请重试')
             return
 
