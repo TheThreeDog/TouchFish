@@ -25,6 +25,7 @@ import threading
 import itchat
 import time
 import re
+import sys
 from itchat.content import *
 
 # linux常用命令，用于防止用户误输入被发送到聊天
@@ -283,7 +284,8 @@ if __name__ == '__main__':
             if cmd[0] not in callBack:
                 print("命令错误，请重试")
                 continue
-            callBack[cmd[0]](cmd[1:]) # 调用cmd所匹配的函数
+            print(cmd[1:])
+            getattr(sys.modules[__name__],cmd[0])(cmd[1:])# 调用cmd所匹配的函数，通过反射的形式调用
     except Exception as e:
         print(e)
         itchat.logout()
