@@ -187,7 +187,7 @@ def cd(arg):
                     username = user['RemarkName']
                     if username == '':
                         username = user['NickName']
-                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg['CreateTime'])),username,msg['Text']))
+                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg['CreateTime'])),username,msg.Text))
 
             while True:
                 name = user.RemarkName
