@@ -57,9 +57,6 @@ def getIdByUserName(name):
     for i in user_dict:
         if user_dict[i]['UserName'] == name:
             return i
-    # for i in room_dict:
-    #     if room_dict[i]['ChatroomName'] == name:
-    #         return i
     return -1
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
@@ -109,7 +106,6 @@ def recv_msg(msg):
     # 把消息加到消息队列当中
     chat_id = getIdByUserName(msg.FromUserName)
     if chat_id != -1:
-        # print("chat_id : {} current_chat_id : {}".format(chat_id,current_chat_id))
         if int(chat_id) == int(current_chat_id) : # 如果这时我正在和这个人聊天
             if chat_id in user_dict:
                 username = user_dict[chat_id]['RemarkName']
@@ -117,7 +113,12 @@ def recv_msg(msg):
                     username = user_dict[chat_id]['NickName']
                 print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
         else:                           # 如果没有正在聊天，则把消息加到消息队列中
-            msg_list[chat_id].insert(0,msg)
+            chat_msg = {}
+            chat_msg['CreateTime'] = msg.CreateTime
+            chat_msg['Text'] = msg.Text
+            chat_msg['NickName'] = msg.User.NickName
+            chat_msg['RemarkName'] = msg.User.RemarkName
+            msg_list[chat_id].insert(0,chat_msg)
     return None
 
 def ls(arg):
@@ -139,10 +140,6 @@ def ls(arg):
                         if name == '':
                             name = user_dict[i]['NickName']
                         print("【id:{:^3} 】 {:^10} 发来 {:^3} 条未读消息".format(i,name,len(msg_list[i])))
-                    # 群聊消息
-                    # elif i in room_dict:
-                    #     name = room_dict[i]['NichName']
-                    #     print(" {:^4} 发来 {:^3} 条未读消息【id:{} 】".format(name,len(msg_list[i]),i))
 
     elif arg[0] == '-f':    # ls -f 好友列表
         print("好友列表：")
@@ -155,10 +152,6 @@ def ls(arg):
             else:
                 print(" {:^4}：{:^3} ".format(user_index,name))
 
-    # elif arg[0] == '-r':    # ls -r 群聊列表
-    #     for room_index in room_dict:
-    #         name = room_dict[room_index]['NickName']
-    #         print(" {:^4}：{:^3} ".format(room_index,name))
     else :
         print('参数错误，请重试')
 
@@ -232,12 +225,6 @@ def find(arg):
             else:
                 print(" {:^4}：{:^4}  {:^4} ".format(i,user_dict[i]['RemarkName'],user_dict[i]['NickName']))
 
-    # print("查找到以下群聊：")
-    # for i in room_dict:
-    #     if arg[0] in room_dict[i]['NickName']:
-    #         print(" {:^4}：{:^4} ".format(i,room_dict[i]['NickName']))
-
-
 def cls(arg): #清屏
     print("\033c",end='')
 
@@ -287,44 +274,3 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         itchat.logout()
-
-
-
-
-'''
-
-itchat.send("Hello World!"，toUserName=None) # 讲信息发送给user
-ithcat.send("@fil@%s" % '/tmp/test.text')
-ithcat.send("@img@%s" % '/tmp/test.png')
-ithcat.send("@vid@%s" % '/tmp/test.mkv')
-
-@itchat.msg_register(TEXT)   #这里的TEXT表示如果有人发送文本消息，那么就会调用下面的方法
-def simple_reply(msg):
-    #这个是向发送者发送消息
-    itchat.send_msg('已经收到了文本消息，消息内容为%s'%msg['Text'],toUserName=msg['FromUserName'])
-    return "T reveived: %s" % msg["Text"]     #返回的给对方的消息，msg["Text"]表示消息的内容
-
-itchat.get_friends()  返回完整的好友列表、
-每个好友为一个字典, 其中第一项为本人的账号信息;
-传入 update=True, 将更新好友列表并返回, get_friends(update=True)
-
-# 获取任何一项等于name键值的用户
-itchat.search_friends(name='autolife')
-获取备注,微信号, 昵称中的任何一项等于name键值的用户. (可以与下一项配置使用.)
-
-get_mps
-将返回完整的工作号列表
-每个公众号为一个字典,
-传入 update=True 将更新公众号列表, 并返回.
-
-get_chatrooms : 返回完整的群聊列表.
-search_chatrooms : 群聊搜索.
-update_chatroom : 获取群聊用户列表或更新该群聊.
-memberList = itchat.update_chatroom('@@abcdefg1234567', detailedMember=True)
-
-msg:
-{'VoiceLength': 0, 'MsgType': 1, 'Type': 'Text', 'FromUserName': '@92f11606bce53a6363bef288374179e2ab88a1ef045fa56252ab3dbee23b4a18', 'NewMsgId': 8717003480232085925, 'Url': '', 'StatusNotifyUserName': '', 'MediaId': '', 'FileSize': '', 'Content': '发什么', 'Ticket': '', 'Text': '发什么', 'ToUserName': '@61ed504db10ac7cf1ba777384ef94cf8d3134486e1ccbfac853e6c1bf7cab5a8', 'ImgWidth': 0, 'MsgId': '8717003480232085925', 'Status': 3, 'EncryFileName': '', 'ImgStatus': 1, 'StatusNotifyCode': 0, 'AppInfo': {'AppID': '', 'Type': 0}, 'PlayLength': 0, 'HasProductId': 0, 'RecommendInfo': {'VerifyFlag': 0, 'OpCode': 0, 'NickName': '', 'Ticket': '', 'UserName': '', 'Content': '', 'Scene': 0, 'AttrStatus': 0, 'Alias': '', 'Sex': 0, 'Province': '', 'Signature': '', 'QQNum': 0, 'City': ''}, 'OriContent': '', 'ImgHeight': 0, 'User': <User: {'Uin': 0, 'Statues': 0, 'UserName': '@92f11606bce53a6363bef288374179e2ab88a1ef045fa56252ab3dbee23b4a18', 'HeadImgUrl': '/cgi-bin/mmwebwx-bin/webwxgeticon?seq=685068817&username=@92f11606bce53a6363bef288374179e2ab88a1ef045fa56252ab3dbee23b4a18&skey=@crypt_126596ce_c3c7d1f500bed8cb9c2e2190c2188bba', 'MemberList': <ContactList: []>, 'KeyWord': '', 'PYQuanPin': '54F3yiciguoxiaofendui2hao', 'MemberCount': 0, 'AppAccountFlag': 0, 'ChatRoomId': 0, 'IsOwner': 0, 'AttrStatus': 102501, 'Sex': 2, 'ContactFlag': 3, 'RemarkPYQuanPin': 'zeze', 'PYInitial': '54F3YCGXFD2H', 'NickName': '5.4F3一次过小分队2号', 'EncryChatRoomId': '', 'SnsFlag': 1, 'HideInputBarFlag': 0, 'DisplayName': '', 'VerifyFlag': 0, 'StarFriend': 0, 'RemarkPYInitial': 'ZZ', 'Province': '山西', 'RemarkName': '泽泽', 'Alias': '', 'Signature': '', 'UniFriend': 0, 'City': '临汾', 'OwnerUin': 0}>, 'ForwardFlag': 0, 'CreateTime': 1557062982, 'SubMsgType': 0, 'AppMsgType': 0, 'FileName': ''}
-
-
-
-'''
