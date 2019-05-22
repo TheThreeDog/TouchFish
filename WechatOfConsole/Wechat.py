@@ -121,8 +121,8 @@ def recv_msg(msg):
             chat_msg = {}
             chat_msg['CreateTime'] = msg.CreateTime
             chat_msg['Text'] = msg.Text
-            chat_msg['NickName'] = msg.NickName
-            chat_msg['RemarkName'] = msg.RemarkName
+            chat_msg['NickName'] = msg.User.NickName
+            chat_msg['RemarkName'] = msg.User.RemarkName
             msg_list[chat_id].insert(0,chat_msg)
     return None
 
