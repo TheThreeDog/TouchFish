@@ -118,7 +118,12 @@ def recv_msg(msg):
                     username = user_dict[chat_id]['NickName']
                 print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)),username,msg.Text),end="")
         else:                           # 如果没有正在聊天，则把消息加到消息队列中
-            msg_list[chat_id].insert(0,msg)
+            chat_msg = {}
+            chat_msg['CreateTime'] = msg.CreateTime
+            chat_msg['Text'] = msg.Text
+            chat_msg['NickName'] = msg.NickName
+            chat_msg['RemarkName'] = msg.RemarkName
+            msg_list[chat_id].insert(0,chat_msg)
     return None
 
 def ls(arg):
@@ -187,7 +192,7 @@ def cd(arg):
                     username = user['RemarkName']
                     if username == '':
                         username = user['NickName']
-                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg['CreateTime'])),username,msg.Text))
+                print("【{}】{} ===> ：{}".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg['CreateTime'])),username,msg['Text']))
 
             while True:
                 name = user.RemarkName
@@ -211,7 +216,7 @@ def cd(arg):
                 itchat.send(msg,toUserName=user.UserName) # 将信息发送给user
 
         except Exception as e:
-            # print(e)
+            print(e)
             print('参数错误，请重试')
             return
 
