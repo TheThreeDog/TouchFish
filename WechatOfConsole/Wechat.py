@@ -41,16 +41,6 @@ selfUserName = ""
 # 类型字典
 msg_list  = {}                       # 消息列表为空
 user_dict = {}
-type_dict = {
-    'Map':'[定位]',
-    'Card':'[名片推荐]',
-    'Note':'[系统消息]',
-    'Sharing':'[公众号链接]',
-    'Picture':'[图片]',
-    'Recording':'[语音]',
-    'Attachment':'[文件]',
-    'Video':'[视频]'
-}
 
 # 通过用户名获取ID，后期通过ID发送消息
 def getIdByUserName(name):
@@ -97,7 +87,7 @@ def recv_group_msg(msg):
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=False) # 注册消息，如果有消息收到，执行此函数。
 def recv_msg(msg):
     global current_chat_id
-    if msg['FromUserName'] == 'newsapp': # 腾讯新闻
+    if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
         return
     if msg['ToUserName'] == 'filehelper': # 发给文件助手
         # print(msg)
