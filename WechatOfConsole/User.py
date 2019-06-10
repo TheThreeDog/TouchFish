@@ -34,7 +34,7 @@ class Msg(object):
     def getName(self):
         if self.remarkName == '':
             return self.nickName
-        return
+        return self.remarkName
 
 
 class User(object):
@@ -81,4 +81,17 @@ class Users(object):
         '''
         接收到消息，归类排入消息队列
         '''
+        m = Msg(msg)
+        # 如果当前正在和他聊天
+        if current_user.userName == m.userName:
+            # 直接将消息打印
+            print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(m.createTime)),m.userName,m.text),end="")
+            return 
+
+        for user in user_dict.values():
+            if user.userName == msg.userName:
+                user.msg_list.insert(0,m)       # 将消息存入队列当中
+                # msg_list[chat_id].insert(0,chat_msg)
+
+
         pass
