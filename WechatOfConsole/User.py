@@ -3,9 +3,7 @@
 # Function   : 将所有的用户、消息相关的操作封装在一个模块中。
 # Remark     : Users中有一个字典存放所有User，User中有一个队列（list）存放所有消息
 
-chat_msg['Text'] = msg.Text
-chat_msg['NickName'] = msg.User.NickName
-chat_msg['RemarkName'] = msg.User.RemarkName
+from MyCommand import Cmd
 
 type_dict = {
     'Map':'[定位]',
@@ -60,6 +58,7 @@ class Users(object):
         self.user_dict = {}
         self.current_user = None    # 当前正在聊天的用户
         self.room_dept = -1          # 用于记录好友和群聊的分界点id
+        self.cmd = Cmd()        # 初始化一个命令管理器， 此命令管理器管理所有的命令
 
     def addUser(self,user,type):
         '''
@@ -93,5 +92,5 @@ class Users(object):
                 user.msg_list.insert(0,m)       # 将消息存入队列当中
                 # msg_list[chat_id].insert(0,chat_msg)
 
-
-        pass
+    def cls(self,arg): #清屏
+        print("\033c",end='')

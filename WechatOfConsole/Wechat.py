@@ -28,6 +28,10 @@ import re
 import sys
 from itchat.content import *
 
+from User import Users
+from User import User
+from User import Msg
+
 # linux常用命令，用于防止用户误输入被发送到聊天
 cmd_list = ['pwd','ls','cd','grep','touch','rm','exit','bye','rm','vi',':wq',':q!',':Q!','cat','cp','mv','rmdir','mk','git','cls','clear','find']
 # 构建一个字典，接收到的消息存放在此字典中，字典键是名字，值是一个列表，用于存放N条信息
@@ -121,21 +125,11 @@ if __name__ == '__main__':
     try:
         itchat.auto_login(hotReload=True,enableCmdQR = 2,exitCallback=itchat.logout) #登录并记录登录状态
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
+        users = Users()                     # 初始化好友列表
         user_list = itchat.get_friends()    # 获取好友
-        selfUserName = user_list[0]['UserName']
+        users.loadUserList(user_list,'u')   # 加载好友
         room_list = itchat.get_chatrooms()  # 获取群聊
-        # room_dict = {}
-        chat_id = 0
-        for user in user_list:
-            user_dict[chat_id] = user       # id 和昵称存储用户信息
-            msg_list[chat_id] = []
-            chat_id += 1
-        for room in room_list:
-            if first_room_id == 0:
-                first_room_id = chat_id
-            user_dict[chat_id] = room
-            msg_list[chat_id] = []
-            chat_id += 1
+        users.loadUserList(room_list,'r')   # 加载群聊
 
         while True:
             print(">>> ",end = '')
@@ -151,7 +145,7 @@ if __name__ == '__main__':
                 continue
             print(cmd[1:])
             # 调用cmd所匹配的函数，通过反射的形式调用  即只要用户输入指令与函数名匹配即可调用。
-            getattr(sys.modules[__name__],cmd[0])(cmd[1:])
+            getattr(users.cmd,cmd[0])(cmd[1:])
     except Exception as e:
         print(e)
         itchat.logout()
