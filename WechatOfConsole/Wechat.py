@@ -32,8 +32,6 @@ from User import Users
 from User import User
 from User import Msg
 
-# linux常用命令，用于防止用户误输入被发送到聊天
-cmd_list = ['pwd','ls','cd','grep','touch','rm','exit','bye','rm','vi',':wq',':q!',':Q!','cat','cp','mv','rmdir','mk','git','cls','clear','find']
 # 构建一个字典，接收到的消息存放在此字典中，字典键是名字，值是一个列表，用于存放N条信息
 msg_list = {}
 # 全局int变量用于记录当前正在和谁聊天，为-1时表示不在聊天状态

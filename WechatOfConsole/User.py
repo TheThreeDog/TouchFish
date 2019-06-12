@@ -4,24 +4,14 @@
 # Remark     : Users中有一个字典存放所有User，User中有一个队列（list）存放所有消息
 
 from MyCommand import Cmd
-
-type_dict = {
-    'Map':'[定位]',
-    'Card':'[名片推荐]',
-    'Note':'[系统消息]',
-    'Sharing':'[公众号链接]',
-    'Picture':'[图片]',
-    'Recording':'[语音]',
-    'Attachment':'[文件]',
-    'Video':'[视频]'
-}
+from Common import user_type_dict
 
 class Msg(object):
     def __init__(self,msg):
         '''
         初始化消息内容，参数是从itchat接收到的msg内容。
         '''
-        self.createTime = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime) # 创建时间
+        self.createTime = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)) # 创建时间
         self.text = msg.Text    # 数据内容
         if msg.Type in type_dict:   # 根据数据类型做特殊处理
             self.text = type_dict[msg.Type]
@@ -44,9 +34,25 @@ class User(object):
         self.userName = args[1]           # 微信指定的的唯一用户名
         self.nickName = args[2]           # 昵称
         self.remarkName = args[3]         # 备注
-        self.type = args[4]               # 类型 u | r
+        self.type = user_type_dict[args[4]] # 类型 u | r ---> 好友 | 群聊
         self.msgs = []
-
+    
+    def getName(self):
+        if self.remarkName == "":
+            return self.nickName
+        return self.remarkName
+    
+    def hasNewMsg():        # 判断是否有新消息
+        if len(self.msgs) == 0:
+            return False
+        else:
+            return True
+    
+    def __contains__(self,e): # 重载 in / not in 运算符
+        if e in self.nickName or e in self.remarkName:
+            return True
+        return False
+    
 
 class Users(object):
     '''
@@ -58,7 +64,7 @@ class Users(object):
         self.user_dict = {}
         self.current_user = None    # 当前正在聊天的用户
         self.room_dept = -1          # 用于记录好友和群聊的分界点id
-        self.cmd = Cmd()        # 初始化一个命令管理器， 此命令管理器管理所有的命令
+        self.cmd = Cmd(self)        # 初始化一个命令管理器， 此命令管理器管理所有的命令
 
     def addUser(self,user,type):
         '''
@@ -87,10 +93,33 @@ class Users(object):
             print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(m.createTime)),m.userName,m.text),end="")
             return 
 
-        for user in user_dict.values():
+        for user in self.getUsers():
             if user.userName == msg.userName:
                 user.msg_list.insert(0,m)       # 将消息存入队列当中
                 # msg_list[chat_id].insert(0,chat_msg)
 
-    def cls(self,arg): #清屏
-        print("\033c",end='')
+    def hasNewMsg(self):
+        '''
+        判断是否有新消息，判断所有的消息列表是否为空
+        '''
+        for user in self.getUsers():
+            if user.hasNewMsg() :  # 有新消息直接返回True
+                return True
+        # 均为空返回False
+        return False
+    
+    def getUser(uid):
+        '''
+        通过ID获取用户
+        '''
+        if uid not in self.user_dict:
+            print("用户id不存在，请重试")
+        return self.user_dict[uid]
+
+
+    def getUsers(self):
+        '''
+        获取所有的用户
+        '''
+        return list(self.user_dict.values())
+
