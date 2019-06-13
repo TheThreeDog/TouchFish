@@ -27,7 +27,7 @@ class Cmd(object):
         elif arg[0] == '-f':    # ls -f 好友列表
             print("好友列表：")
             for user in self.parent.getUsers():
-                print(" {:^4}：{:^8} {:^3} ".format(user.id,user.type,user.getName()))
+                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
                 
         else :
             print('参数错误，请重试')
@@ -36,20 +36,22 @@ class Cmd(object):
         '''
         进入聊天室， cd {id}  进入与id进行聊天的界面
         '''
-        global current_chat_id
         if len(arg) == 0 :
             print("cd命令需要参数")
             return
         elif arg[0] == '..':
             # 返回主页
             return
+        elif type(arg[0]) != int:
+            print("请cd 一个数字")
+            return 
         else:
-            user = self.parent.getUser(arg[0])
+            user = self.parent.getUserByID(int(arg[0]))
             self.parent.current_user = user
             self.cls(None)
             # 进入后先把队列中的消息打印
             while user.hasNewMsg():
-                msg = user.msgs.pop()
+                msg = user.takeMsg()
                 print("【{}】{} ===> ：{}".format(msg.createTime,user.getName(),msg.text))
             # 进入与其聊天的死循环
             while True:
@@ -68,7 +70,7 @@ class Cmd(object):
                     else:
                         continue 
                 # 如果能走到这一步就发送数据
-                itchat.send(msg,toUserName=user.userName) # 将信息发送给user  userName是微信用于识别的用户名
+                self.parent.send(msg,user.userName) # 将信息发送给user  userName是微信用于识别的用户名
 
     def find(self,arg):
         '''
@@ -86,7 +88,7 @@ class Cmd(object):
                     if user not in result: # 已经存在的不再添加防止重复
                         result.append(user)
         # x 就是每一个user
-        map(lambda x : print(" {:^4}：{:^8} {:^4}  {:^4} ".format(user.id,user.type,user.remarkName,user.nickName)) ,result)
+        map(lambda x : print(" {:^4}：{:^4} {:^4}  {:^4} ".format(user.id,user.type,user.remarkName,user.nickName)) ,result)
 
     def cls(self,arg): #清屏
         print("\033c",end='')
