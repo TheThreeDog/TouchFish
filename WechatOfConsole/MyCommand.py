@@ -42,11 +42,13 @@ class Cmd(object):
         elif arg[0] == '..':
             # 返回主页
             return
-        elif type(arg[0]) != int:
-            print("请cd 一个数字")
-            return 
         else:
-            user = self.parent.getUserByID(int(arg[0]))
+            try:
+                user_id = int(arg[0])
+            except Exception :
+                print("cd后请输入一个数字")
+                return 
+            user = self.parent.getUserByID(user_id)
             self.parent.current_user = user
             self.cls(None)
             # 进入后先把队列中的消息打印
@@ -70,7 +72,7 @@ class Cmd(object):
                     else:
                         continue 
                 # 如果能走到这一步就发送数据
-                self.parent.send(msg,user.userName) # 将信息发送给user  userName是微信用于识别的用户名
+                self.parent.sendMsg(msg,user.userName) # 将信息发送给user  userName是微信用于识别的用户名
 
     def find(self,arg):
         '''
@@ -88,7 +90,11 @@ class Cmd(object):
                     if user not in result: # 已经存在的不再添加防止重复
                         result.append(user)
         # x 就是每一个user
-        map(lambda x : print(" {:^4}：{:^4} {:^4}  {:^4} ".format(user.id,user.type,user.remarkName,user.nickName)) ,result)
+        # 注意map是一个惰性序列，必须要list以下才会执行
+        list(map(lambda x : print(" {:^4}：{:^4} {:^4}  {:^4} ".format(x.id,x.type,x.remarkName,x.nickName)) ,result))
 
     def cls(self,arg): #清屏
+        print("\033c",end='')
+        
+    def clear(self,arg): # 同上
         print("\033c",end='')

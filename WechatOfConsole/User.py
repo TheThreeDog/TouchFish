@@ -13,7 +13,7 @@ from MyCommand import Cmd
 from Common import user_type_dict,type_dict
 
 class Msg(object):
-    def __init__(self,msg):
+    def __init__(self,msg,type):
         '''
         初始化消息内容，参数是从itchat接收到的msg内容。
         '''
@@ -21,9 +21,21 @@ class Msg(object):
         self.text = msg.Text    # 数据内容
         if msg.Type in type_dict:   # 根据数据类型做特殊处理
             self.text = type_dict[msg.Type]
-        self.nickName = msg.User.NickName   # 消息发送者昵称
-        self.remarkName = msg.User.RemarkName   # 消息发送者备注
-        self.userName = msg.User.UserName    # 用户名，是微信接口中的id，唯一。
+        # 根据不同类型做不同判断
+        if "u" == type:
+            self.nickName = msg.User.NickName   # 消息发送者昵称
+            self.remarkName = msg.User.RemarkName   # 消息发送者备注
+            self.userName = msg.User.UserName    # 用户名，是微信接口中的id，唯一。
+        elif "r" == type:
+            user = Users.instance().getUserByUserName(msg.ActualUserName)
+            if user is not None:
+                self.remarkName = user.remarkName   # 消息发送者备注
+                self.nickName = user.nickName   # 消息发送者昵称
+                self.userName = user.userName    # 用户名，是微信接口中的id，唯一。
+            else:
+                self.remarkName = msg.User.RemarkName   # 消息发送者备注
+                self.nickName = msg.ActualNickName   # 消息发送者昵称
+                self.userName = msg.ActualUserName    # 用户名，是微信接口中的id，唯一。
 
     def getName(self):
         if self.remarkName == '':
@@ -66,13 +78,9 @@ class User(object):
         return False
     
     def __eq__(self,e):         # 重载 == 运算符， 如果两者用户名相同就被认为是相同的用户
-        # if e.userName == self.userName:
-        #     return True             
-        # return False
-        if type(e)==type(self):
-            return self.userName==e.userName
-        else:
-            return super(SBTNode, self).__eq__(e)
+        if e is None :
+            return False
+        return e.userName == self.userName
     
 
 class Users(object):
@@ -138,21 +146,22 @@ class Users(object):
             self.addUser(user,type)
         self.selfUser = self.user_dict[0]
 
-    def recvMsg(self,msg):
-        '''
-        接收到消息，归类排入消息队列
-        '''
-        m = Msg(msg)
-        # 如果当前正在和他聊天
-        if self.current_user.userName == m.userName:
-            # 直接将消息打印
-            print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(m.createTime)),m.userName,m.text),end="")
-            return 
+    # def recvMsg(self,msg):
+    #     '''
+    #     接收到消息，归类排入消息队列
+    #     '''
+    #     print("这个")
+    #     m = Msg(msg)
+    #     # 如果当前正在和他聊天
+    #     if self.current_user.userName == m.userName:
+    #         # 直接将消息打印
+    #         print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(m.createTime)),m.userName,m.text),end="")
+    #         return 
 
-        for user in self.getUsers():
-            if user.userName == msg.userName:
-                user.msg_list.insert(0,m)       # 将消息存入队列当中
-                # msg_list[chat_id].insert(0,chat_msg)
+    #     for user in self.getUsers():
+    #         if user.userName == msg.userName:
+    #             user.msg_list.insert(0,m)       # 将消息存入队列当中
+    #             # msg_list[chat_id].insert(0,chat_msg)
 
     def hasNewMsg(self):
         '''
@@ -188,23 +197,23 @@ class Users(object):
         '''
         return list(self.user_dict.values())
 
-    def handelMsg(self,msg):
+    def handelMsg(self,msg,type):
         '''
         处理接收到的消息，或打印或存入消息队列
+        type : 好友信息是 u 群聊消息是 r
         '''
-        users = Users.instance()
-        user = users.getUserByUserName(msg.FromUserName)
-        m = Msg(msg)
+        user = self.getUserByUserName(msg.FromUserName)
         if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
             return
         if msg['ToUserName'] == 'filehelper': # 忽略掉发给文件助手的
             return
-        if msg['ToUserName'] != users.selfUser.userName: # 忽略掉发送目标不是自己的
+        if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
             return
-        if msg['FromUserName'] == users.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
-            return  
+        if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
+            return
+        m = Msg(msg,type)  
         if user is not None:
-            if user == users.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
+            if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
                 print("\n【{}】{} ===> ：{}\n>>> ".format(m.createTime,m.getName(),m.text),end="")
             else:                           # 如果不是的话，直接排入消息队列
                 user.addMsg(m)
@@ -218,7 +227,7 @@ def recv_group_msg(msg):
     '''
     获取到群聊发送来的消息
     '''
-    Users.instance().handelMsg(msg)
+    Users.instance().handelMsg(msg,'r')
 
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=False) # 注册消息，如果有消息收到，执行此函数。
@@ -226,4 +235,4 @@ def recv_msg(msg):
     '''
     获取到好友发送来的消息
     '''
-    Users.instance().handelMsg(msg)
+    Users.instance().handelMsg(msg,'u')
