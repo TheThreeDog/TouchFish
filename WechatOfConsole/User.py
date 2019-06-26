@@ -36,6 +36,8 @@ class Msg(object):
                 self.remarkName = msg.User.RemarkName   # 消息发送者备注
                 self.nickName = msg.ActualNickName   # 消息发送者昵称
                 self.userName = msg.ActualUserName    # 用户名，是微信接口中的id，唯一。
+        else :
+            print("消息类型参数错误，请重试")
 
     def getName(self):
         if self.remarkName == '':
@@ -145,23 +147,6 @@ class Users(object):
         for user in users:
             self.addUser(user,type)
         self.selfUser = self.user_dict[0]
-
-    # def recvMsg(self,msg):
-    #     '''
-    #     接收到消息，归类排入消息队列
-    #     '''
-    #     print("这个")
-    #     m = Msg(msg)
-    #     # 如果当前正在和他聊天
-    #     if self.current_user.userName == m.userName:
-    #         # 直接将消息打印
-    #         print("\n【{}】{} ===> ：{}\n>>> ".format(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(m.createTime)),m.userName,m.text),end="")
-    #         return 
-
-    #     for user in self.getUsers():
-    #         if user.userName == msg.userName:
-    #             user.msg_list.insert(0,m)       # 将消息存入队列当中
-    #             # msg_list[chat_id].insert(0,chat_msg)
 
     def hasNewMsg(self):
         '''

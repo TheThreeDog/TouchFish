@@ -90,7 +90,7 @@ class Cmd(object):
                     if user not in result: # 已经存在的不再添加防止重复
                         result.append(user)
         # x 就是每一个user
-        # 注意map是一个惰性序列，必须要list以下才会执行
+        # 注意map是一个惰性序列，必须要list一下才会执行
         list(map(lambda x : print(" {:^4}：{:^4} {:^4}  {:^4} ".format(x.id,x.type,x.remarkName,x.nickName)) ,result))
 
     def cls(self,arg): #清屏
