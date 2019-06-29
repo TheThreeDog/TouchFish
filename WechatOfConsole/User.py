@@ -19,6 +19,7 @@ class Msg(object):
         '''
         self.createTime = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)) # 创建时间
         self.text = msg.Text    # 数据内容
+        self.remarkName = ''
         if msg.Type in type_dict:   # 根据数据类型做特殊处理
             self.text = type_dict[msg.Type]
         # 根据不同类型做不同判断
@@ -30,12 +31,8 @@ class Msg(object):
             user = Users.instance().getUserByUserName(msg.ActualUserName)
             if user is not None:
                 self.remarkName = user.remarkName   # 消息发送者备注
-                self.nickName = user.nickName   # 消息发送者昵称
-                self.userName = user.userName    # 用户名，是微信接口中的id，唯一。
-            else:
-                self.remarkName = msg.User.RemarkName   # 消息发送者备注
-                self.nickName = msg.ActualNickName   # 消息发送者昵称
-                self.userName = msg.ActualUserName    # 用户名，是微信接口中的id，唯一。
+            self.nickName = msg.ActualNickName   # 消息发送者昵称
+            self.userName = msg.ActualUserName    # 用户名，是微信接口中的id，唯一。
         else :
             print("消息类型参数错误，请重试")
 

@@ -54,7 +54,7 @@ class Cmd(object):
             # 进入后先把队列中的消息打印
             while user.hasNewMsg():
                 msg = user.takeMsg()
-                print("【{}】{} ===> ：{}".format(msg.createTime,user.getName(),msg.text))
+                print("【{}】{} ===> ：{}".format(msg.createTime,msg.getName(),msg.text))
             # 进入与其聊天的死循环
             while True:
                 print(" 与 {} 聊天中 >>> ".format(user.getName()),end = '')
