@@ -51,36 +51,36 @@ class User(object):
         self.userName = args[1]           # 微信指定的的唯一用户名
         self.nickName = args[2]           # 昵称
         self.remarkName = args[3]         # 备注
-        self.type = user_type_dict[args[4]] # 类型 u | r ---> 好友 | 群聊
+        self.type = user_type_dict[args[4]] # 类型 f | r ---> 好友 | 群聊
         self.msgs = []
-    
+
     def addMsg(self,msg):
         self.msgs.insert(0,msg)
-    
+
     def takeMsg(self):
-        return self.msgs.pop() 
+        return self.msgs.pop()
 
     def getName(self):
         if self.remarkName == "":
             return self.nickName
         return self.remarkName
-    
+
     def hasNewMsg(self):        # 判断是否有新消息
         if len(self.msgs) == 0:
             return False
         else:
             return True
-    
+
     def __contains__(self,e): # 重载 in / not in 运算符
         if e in self.nickName or e in self.remarkName:
             return True
         return False
-    
+
     def __eq__(self,e):         # 重载 == 运算符， 如果两者用户名相同就被认为是相同的用户
         if e is None :
             return False
         return e.userName == self.userName
-    
+
 
 class Users(object):
     '''
@@ -94,9 +94,9 @@ class Users(object):
         self.room_dept = -1          # 用于记录好友和群聊的分界点id
         self.cmd = Cmd(self)        # 初始化一个命令管理器， 此命令管理器管理所有的命令
 
-        itchat.auto_login(hotReload=True,enableCmdQR = 2,exitCallback=itchat.logout) #登录并记录登录状态
+        itchat.auto_login(exitCallback=itchat.logout) #登录并记录登录状态
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
-        self.loadUserList(itchat.get_friends(),'u')             # 加载好友
+        self.loadUserList(itchat.get_friends(),'f')             # 加载好友
         self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
 
     @classmethod
@@ -137,7 +137,7 @@ class Users(object):
         self.user_dict[self.user_count] = new_user   # 键是ID，值是用户
         self.user_count += 1
 
-    def loadUserList(self,users,type='u'):
+    def loadUserList(self,users,type='f'):
         '''
         加载好友列表，加好友传入u，加群聊传入r
         '''
@@ -154,7 +154,7 @@ class Users(object):
                 return True
         # 均为空返回False
         return False
-    
+
     def getUserByID(self,uid):
         '''
         通过ID获取用户
@@ -182,7 +182,7 @@ class Users(object):
     def handelMsg(self,msg,type):
         '''
         处理接收到的消息，或打印或存入消息队列
-        type : 好友信息是 u 群聊消息是 r
+        type : 好友信息是 f 群聊消息是 r
         '''
         user = self.getUserByUserName(msg.FromUserName)
         if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
@@ -193,7 +193,7 @@ class Users(object):
             return
         if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
             return
-        m = Msg(msg,type)  
+        m = Msg(msg,type)
         if user is not None:
             if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
                 print("\n【{}】{} ===> ：{}\n>>> ".format(m.createTime,m.getName(),m.text),end="")
