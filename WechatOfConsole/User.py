@@ -94,7 +94,7 @@ class Users(object):
         self.room_dept = -1          # 用于记录好友和群聊的分界点id
         self.cmd = Cmd(self)        # 初始化一个命令管理器， 此命令管理器管理所有的命令
 
-        itchat.auto_login(exitCallback=itchat.logout) #登录并记录登录状态
+        itchat.auto_login(hotReload=True,enableCmdQR = 2,exitCallback=itchat.logout) #登录并记录登录状态
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
         self.loadUserList(itchat.get_friends(),'f')             # 加载好友
         self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
