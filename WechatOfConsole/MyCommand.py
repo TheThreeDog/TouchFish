@@ -24,11 +24,22 @@ class Cmd(object):
                         # 如果消息列表不为空，就把这个人的消息都打印出来
                         print("【id:{:^3} 】 {:^10} 发来 {:^3} 条未读消息".format(user.id,user.getName(),len(user.msgs)))
 
-        elif arg[0] == '-f':    # ls -f 好友列表
-            print("好友列表：")
+        elif arg[0] == '-a':    # ls -a 获取全部好友 + 群聊
+            print("好友 | 群聊列表：")
             for user in self.parent.getUsers():
                 print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
-                
+
+        elif arg[0] == '-f':    # ls -f 好友列表
+            print("好友列表：")
+            for user in filter(lambda x : x.type == '【好友】' , self.parent.getUsers()):
+                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
+
+        elif arg[0] == '-r':    # ls -f 群聊列表
+            print("群聊列表：")
+            for user in filter(lambda x : x.type == '【群聊】' , self.parent.getUsers()):
+                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
+
+
         else :
             print('参数错误，请重试')
 
@@ -47,14 +58,14 @@ class Cmd(object):
                 user_id = int(arg[0])
             except Exception :
                 print("cd后请输入一个数字")
-                return 
+                return
             user = self.parent.getUserByID(user_id)
             self.parent.current_user = user
             self.cls(None)
             # 进入后先把队列中的消息打印
             while user.hasNewMsg():
                 msg = user.takeMsg()
-                print("【{}】{} ===> ：{}".format(msg.createTime,user.getName(),msg.text))
+                print("【{}】{} ===> ：{}".format(msg.createTime,msg.getName(),msg.text))
             # 进入与其聊天的死循环
             while True:
                 print(" 与 {} 聊天中 >>> ".format(user.getName()),end = '')
@@ -70,7 +81,7 @@ class Cmd(object):
                     if res == 'y' or res == 'yes':
                         pass
                     else:
-                        continue 
+                        continue
                 # 如果能走到这一步就发送数据
                 self.parent.sendMsg(msg,user.userName) # 将信息发送给user  userName是微信用于识别的用户名
 
@@ -81,7 +92,7 @@ class Cmd(object):
         if len(arg) == 0:
             print("参数错误，请重试")
             return
-        
+
         result = []
         print("查找到以下好友|群聊：")
         for keywords in arg:        # 列表拆分  关键字进行模糊查询
@@ -95,6 +106,6 @@ class Cmd(object):
 
     def cls(self,arg): #清屏
         print("\033c",end='')
-        
+
     def clear(self,arg): # 同上
         print("\033c",end='')
