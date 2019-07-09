@@ -137,6 +137,17 @@ class Users(object):
         self.user_dict[self.user_count] = new_user   # 键是ID，值是用户
         self.user_count += 1
 
+    def reloadUserList(self):
+        '''
+        重载好友列表，如果程序运行期间添加了好友或群聊，通过此命令刷新
+        '''
+        self.selfUser = None
+        self.current_user = None
+        self.user_dict = {}
+        self.user_count = 0
+        self.loadUserList(itchat.get_friends(),'f')             # 加载好友
+        self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
+
     def loadUserList(self,users,type='f'):
         '''
         加载好友列表，加好友传入u，加群聊传入r

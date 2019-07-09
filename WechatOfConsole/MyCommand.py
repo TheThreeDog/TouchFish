@@ -109,3 +109,6 @@ class Cmd(object):
 
     def clear(self,arg): # 同上
         print("\033c",end='')
+    
+    def reload(self,arg):
+        self.parent.reloadUserList()
