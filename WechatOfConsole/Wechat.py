@@ -34,9 +34,6 @@ if __name__ == '__main__':
 
 '''
 
-itchat.send("Hello World!"，toUserName=None) # 讲信息发送给user
-ithcat.send("@fil@%s" % '/tmp/test.text')
-ithcat.send("@img@%s" % '/tmp/test.png')
 ithcat.send("@vid@%s" % '/tmp/test.mkv')
 
 @itchat.msg_register(TEXT)   #这里的TEXT表示如果有人发送文本消息，那么就会调用下面的方法
