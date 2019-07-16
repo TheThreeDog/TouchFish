@@ -112,3 +112,43 @@ class Cmd(object):
     
     def reload(self,arg):
         self.parent.reloadUserList()
+
+    def group(self,arg):
+        '''
+        进入群发模式， group id1 id2 id3 id... 消息将发送给指定的所有人
+        '''
+        if len(arg) == 0 :
+            print("请指定群发对象的id，例如： 'group 3 34 36 23 74'")
+            return
+        elif arg[0] == '..':
+            # 返回主页
+            return
+        else:
+            user_name_list = []
+            for uid in arg:
+                if uid == ' ': # 过滤掉空格
+                    continue  
+                try:
+                    user_id = int(uid)
+                except Exception :
+                    continue 
+                user_name_list.append(self.parent.getUserByID(user_id).userName)
+            while(True):
+                print("群发助手，选定的{}位好友将收到此条信息，请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
+                msg = input()
+                if msg == 'cd ..':
+                    # 退出聊天，把当前正在沟通的用户置为None
+                    self.parent.current_user = None
+                    break
+                # 如果输入内容包含疑似cmd字符串，这个len不为0
+                if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
+                    print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
+                    res = input()
+                    if res == 'y' or res == 'yes':
+                        pass
+                    else:
+                        continue
+                # 如果能走到这一步就发送数据
+                for name in user_name_list:
+                    self.parent.sendMsg(msg,name) # 将信息发送给user  userName是微信用于识别的用户名
+
