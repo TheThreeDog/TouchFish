@@ -109,3 +109,75 @@ class Cmd(object):
 
     def clear(self,arg): # 同上
         print("\033c",end='')
+    
+    def reload(self,arg):
+        self.parent.reloadUserList()
+
+    def group(self,arg):
+        '''
+        群发模式，请指定群发模式： group id1 id2 id3 id... 消息将发送给指定的所有人
+        '''
+        user_name_list = []
+        if len(arg) == 0 :
+            print("请指定群发对象的id，例如： 'group 3 34 36 23 74'")
+            return
+        elif arg[0] == '-inverse': # 反选模式，指定的好友不会收到消息。
+            for uid in [x.id for x in self.parent.getUsers()]:
+                if str(uid) not in arg[1:]:
+                    user_name_list.append(self.parent.getUserByID(uid).userName)
+        else:   # 正选模式
+            for uid in arg:
+                if uid == ' ': # 过滤掉空格
+                    continue  
+                try:
+                    user_id = int(uid)
+                except Exception :
+                    continue 
+                user_name_list.append(self.parent.getUserByID(user_id).userName)
+        while(True):
+            print("群发模式，选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
+            msg = input()
+            if msg == 'cd ..':
+                # 退出聊天，把当前正在沟通的用户置为None
+                self.parent.current_user = None
+                break
+            # 如果输入内容包含疑似cmd字符串，这个len不为0
+            if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
+                print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
+                res = input()
+                if res == 'y' or res == 'yes':
+                    pass
+                else:
+                    continue
+            # 如果能走到这一步就发送数据
+            for name in user_name_list:
+                self.parent.sendMsg(msg,name) # 将信息发送给user  userName是微信用于识别的用户名
+
+    def help(self,arg):
+        print("\033c \n")
+        print("                                 WeChat of Console")
+        print("                                     版本：2.0")
+        print("                                 维护人：ThreeDog")
+        print("     项目源码：https://github.com/TheThreeDog/TouchFish/tree/master/WechatOfConsole")
+        print("                          控制台版本微信是可自由分发的开放源代码软件")
+        print("                                 帮助乌干达的可怜儿童！")
+        print("              输入 help 或 h 或 man <Enter>      查看说明！\n")
+        print("              输入 exit 退出")
+        print("              输入 ls 显示所有未读消息")
+        print("              输入 ls -a 显示所有好友 | 群聊")
+        print("              输入 ls -f 显示所有好友列表")
+        print("              输入 ls -r 显示所有群聊列表")
+        print("              输入 find XXX：通过姓名模糊查询好友或群聊")
+        print("              输入 cls 或 clear ：清空屏幕")
+        print("              输入 cd {id} 进入与编号为{id}的用户|群聊聊天，如 cd 25")
+        print("              输入 group {id} {id2} {id3} ... 进入群发模式，消息将发送给id id2 id3...指定的所有人")
+        print("              输入 group -inverse {id} {id2} {id3} ... 进入反选群发模式，消息将发送给除了id id2 id3 之外的所有人")
+        print("              在聊天模式中输入 cd .. 退出到主界面")
+        print("              输入 reload 重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）")
+
+
+    def h(self,arg):
+        self.help(arg)
+    
+    def man(self,arg):
+        self.help(arg)
