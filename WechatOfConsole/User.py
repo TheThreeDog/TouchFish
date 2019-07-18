@@ -207,7 +207,7 @@ class Users(object):
         m = Msg(msg,type)
         if user is not None:
             if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
-                print("\n【{}】{} ===> ：{}\n>>> 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+                print("\n【{}】{} ===> ：{}\n 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
             else:                           # 如果不是的话，直接排入消息队列
                 user.addMsg(m)
 

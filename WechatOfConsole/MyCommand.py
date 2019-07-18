@@ -135,7 +135,7 @@ class Cmd(object):
                     continue 
                 user_name_list.append(self.parent.getUserByID(user_id).userName)
         while(True):
-            print("群发模式，选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
+            print("【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
             msg = input()
             if msg == 'cd ..':
                 # 退出聊天，把当前正在沟通的用户置为None
