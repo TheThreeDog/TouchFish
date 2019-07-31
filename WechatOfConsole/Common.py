@@ -41,19 +41,30 @@ class History(object):
         '''
         获取下一条
         '''
-        pass
+        if self.index == (len(self.history) - 1):
+            # 已经到了最后一条
+            return ""
+        return self.history[self.index + 1]
     
     def next(self):
         '''
         获取上一条
         '''
-        pass
+        if self.index == 0:
+            # 已经到了第一条
+            return ""
+        return self.history[self.index - 1]
     
     def append(self,cmd):
         '''
         添加新的
         '''
         self.history.append(cmd)
+        # 如果长度超过了2000，把数组截断以下子
+        if len(self.history) > 2000:
+            self.history = self.history[1:2000]
+        self.index = len(self.history) - 1
+
 
 # 输入历史
 history = History()

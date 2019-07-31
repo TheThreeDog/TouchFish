@@ -3,6 +3,9 @@
 # Thanks     : 底层使用itchat ：https://github.com/littlecodersh/itchat
 # Function   : 在控制台使用微信，通过接口调用，接收并发送消息。 接收端需要一个线程来itchat.run()执行。
 # Remark     : 仅支持文字消息，尽可能保持微信的用户体验
+# Requests   : 
+    #   - pip install itchat
+    #   - pip install pygame
 # Requests：
     # 待开发需求：
     # １、中文删除存在BUG
@@ -15,11 +18,11 @@
     # 5、新开发自动回复功能
     # 6、群发助手
 
-from User import Users
+import User
 
 # 主程序
 if __name__ == '__main__':
-    users = Users.instance()            # 初始化好友列表 (单例模式)
+    users = User.Users.instance()            # 初始化好友列表 (单例模式)
     users.exec()                        # 进入users的事件循环
 
 
