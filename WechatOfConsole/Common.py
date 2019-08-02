@@ -26,3 +26,45 @@ user_type_dict = {
     'r':'【群聊】',
     'f':'【好友】',
 }
+
+class History(object):
+    '''
+    输入历史，所有的输入历史都保存在这里。 类似一个队列 
+    - 上--previous 获取上一个  
+    - 下--next 获取下一个 
+    '''
+    def __init__(self):
+        self.index = 0
+        self.history = []
+    
+    def previous(self):
+        '''
+        获取下一条
+        '''
+        if self.index == (len(self.history) - 1):
+            # 已经到了最后一条
+            return ""
+        return self.history[self.index + 1]
+    
+    def next(self):
+        '''
+        获取上一条
+        '''
+        if self.index == 0:
+            # 已经到了第一条
+            return ""
+        return self.history[self.index - 1]
+    
+    def append(self,cmd):
+        '''
+        添加新的
+        '''
+        self.history.append(cmd)
+        # 如果长度超过了2000，把数组截断以下子
+        if len(self.history) > 2000:
+            self.history = self.history[1:2000]
+        self.index = len(self.history) - 1
+
+
+# 输入历史
+history = History()

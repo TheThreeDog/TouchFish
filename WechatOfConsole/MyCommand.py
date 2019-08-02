@@ -5,6 +5,7 @@
 # 函数调用的操作对象均是用户列表，因此传入将users列表作为parent参数传入
 
 from Common import cmd_list
+from Common import history
 
 
 class Cmd(object):
@@ -135,7 +136,7 @@ class Cmd(object):
                     continue 
                 user_name_list.append(self.parent.getUserByID(user_id).userName)
         while(True):
-            print("群发模式，选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
+            print("【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
             msg = input()
             if msg == 'cd ..':
                 # 退出聊天，把当前正在沟通的用户置为None
