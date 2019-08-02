@@ -25,10 +25,13 @@ class Msg(object):
         # 根据不同类型做不同判断
         if "u" == type:
             if "NickName" not in msg.User:
-                print("收到一条无法解读的消息，请重试。")
-                print(msg)
-            self.nickName = msg.User.NickName   # 消息发送者昵称
-            self.remarkName = msg.User.RemarkName   # 消息发送者备注
+                self.nickName = msg.User.UserName
+            else :
+                self.nickName = msg.User.NickName   # 消息发送者昵称
+            if "RemarkName" not in msg.User:
+                self.remarkName = msg.User.UserName
+            else :
+                self.remarkName = msg.User.RemarkName   # 消息发送者备注
             self.userName = msg.User.UserName    # 用户名，是微信接口中的id，唯一。
         elif "r" == type:
             user = Users.instance().getUserByUserName(msg.ActualUserName)
@@ -101,6 +104,7 @@ class Users(object):
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
         self.loadUserList(itchat.get_friends(),'f')             # 加载好友
         self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
+        self.user_dict[0].userName = 'filehelper'               # 将0号处理为文件助手
 
     @classmethod
     def instance(cls,*args,**kwargs):
@@ -201,12 +205,14 @@ class Users(object):
         user = self.getUserByUserName(msg.FromUserName)
         if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
             return
-        if msg['ToUserName'] == 'filehelper': # 忽略掉发给文件助手的
-            return
         if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
             return
+        if msg['ToUserName'] == 'filehelper': # 文件助手发送来的消息，做特殊处理
+            user = self.getUserByID(0)
         if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
             return
+        if msg['FromUserName'] == 'filehelper': 
+            return 
         if user is not None:
             m = Msg(msg,type)
             if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
