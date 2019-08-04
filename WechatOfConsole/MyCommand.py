@@ -70,7 +70,7 @@ class Cmd(object):
             # 进入与其聊天的死循环
             while True:
                 print(" 与 {} 聊天中 >>> ".format(user.getName()),end = '')
-                msg = input()
+                msg = td_input()
                 if msg == 'cd ..':
                     # 退出聊天，把当前正在沟通的用户置为None
                     self.parent.current_user = None
@@ -78,7 +78,7 @@ class Cmd(object):
                 # 如果输入内容包含疑似cmd字符串，这个len不为0
                 if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
                     print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
-                    res = input()
+                    res = td_input()
                     if res == 'y' or res == 'yes':
                         pass
                     else:
@@ -137,7 +137,7 @@ class Cmd(object):
                 user_name_list.append(self.parent.getUserByID(user_id).userName)
         while(True):
             print("【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
-            msg = input()
+            msg = td_input()
             if msg == 'cd ..':
                 # 退出聊天，把当前正在沟通的用户置为None
                 self.parent.current_user = None
@@ -145,7 +145,7 @@ class Cmd(object):
             # 如果输入内容包含疑似cmd字符串，这个len不为0
             if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
                 print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
-                res = input()
+                res = td_input()
                 if res == 'y' or res == 'yes':
                     pass
                 else:

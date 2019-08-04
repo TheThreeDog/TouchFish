@@ -119,7 +119,7 @@ class Users(object):
         try:
             while True:
                 print(">>> ",end = '')
-                cmd = input().strip() # 获取字符去除前后空格
+                cmd = td_input().strip() # 获取字符去除前后空格
                 if cmd == '':    # 输入无效内容，直接跳过
                     continue
                 if cmd == 'exit':
