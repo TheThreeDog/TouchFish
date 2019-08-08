@@ -70,7 +70,8 @@ class History(object):
 # 输入历史
 history = History()
 
-def td_input(msg):
+def td_input():
+    msg = input()
     history.append(msg)
-    return input()
+    return msg
 

@@ -10,7 +10,7 @@ import itchat
 from itchat.content import *
 
 from MyCommand import Cmd
-from Common import user_type_dict,type_dict
+from Common import user_type_dict,type_dict,history,td_input
 
 class Msg(object):
     def __init__(self,msg,type):
@@ -205,10 +205,10 @@ class Users(object):
         user = self.getUserByUserName(msg.FromUserName)
         if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
             return
-        if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
-            return
         if msg['ToUserName'] == 'filehelper': # 文件助手发送来的消息，做特殊处理
             user = self.getUserByID(0)
+        if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
+            return
         if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
             return
         if msg['FromUserName'] == 'filehelper': 

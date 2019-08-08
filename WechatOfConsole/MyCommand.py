@@ -5,7 +5,7 @@
 # 函数调用的操作对象均是用户列表，因此传入将users列表作为parent参数传入
 
 from Common import cmd_list
-from Common import history
+from Common import history,td_input
 
 
 class Cmd(object):
