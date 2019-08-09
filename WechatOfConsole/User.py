@@ -104,7 +104,6 @@ class Users(object):
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
         self.loadUserList(itchat.get_friends(),'f')             # 加载好友
         self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
-        self.user_dict[0].userName = 'filehelper'               # 将0号处理为文件助手
 
     @classmethod
     def instance(cls,*args,**kwargs):
@@ -203,13 +202,13 @@ class Users(object):
         type : 好友信息是 f 群聊消息是 r
         '''
         user = self.getUserByUserName(msg.FromUserName)
-        if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
-            return
         if msg['ToUserName'] == 'filehelper': # 文件助手发送来的消息，做特殊处理
             user = self.getUserByID(0)
-        if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
+        elif msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
             return
-        if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
+        elif msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
+            return
+        if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
             return
         if msg['FromUserName'] == 'filehelper': 
             return 

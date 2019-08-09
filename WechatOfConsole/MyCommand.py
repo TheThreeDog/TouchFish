@@ -84,7 +84,10 @@ class Cmd(object):
                     else:
                         continue
                 # 如果能走到这一步就发送数据
-                self.parent.sendMsg(msg,user.userName) # 将信息发送给user  userName是微信用于识别的用户名
+                if user.id == 0 or user.id == '0':  # 处理发送给文件助手的消息
+                    self.parent.sendMsg(msg,'filehelper')
+                else:
+                    self.parent.sendMsg(msg,user.userName) # 将信息发送给user  userName是微信用于识别的用户名
 
     def find(self,arg):
         '''
@@ -163,18 +166,18 @@ class Cmd(object):
         print("                          控制台版本微信是可自由分发的开放源代码软件")
         print("                                 帮助乌干达的可怜儿童！")
         print("              输入 help 或 h 或 man <Enter>      查看说明！\n")
-        print("              输入 exit 退出")
-        print("              输入 ls 显示所有未读消息")
-        print("              输入 ls -a 显示所有好友 | 群聊")
-        print("              输入 ls -f 显示所有好友列表")
-        print("              输入 ls -r 显示所有群聊列表")
-        print("              输入 find XXX：通过姓名模糊查询好友或群聊")
-        print("              输入 cls 或 clear ：清空屏幕")
-        print("              输入 cd {id} 进入与编号为{id}的用户|群聊聊天，如 cd 25")
-        print("              输入 group {id} {id2} {id3} ... 进入群发模式，消息将发送给id id2 id3...指定的所有人")
-        print("              输入 group -inverse {id} {id2} {id3} ... 进入反选群发模式，消息将发送给除了id id2 id3 之外的所有人")
-        print("              在聊天模式中输入 cd .. 退出到主界面")
-        print("              输入 reload 重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）")
+        print("              输入 exit <Enter> 退出")
+        print("              输入 ls <Enter> 显示所有未读消息")
+        print("              输入 ls -a <Enter> 显示所有好友 | 群聊")
+        print("              输入 ls -f <Enter> 显示所有好友列表")
+        print("              输入 ls -r <Enter> 显示所有群聊列表")
+        print("              输入 find XXX <Enter>：通过姓名模糊查询好友或群聊")
+        print("              输入 cls 或 clear <Enter> ：清空屏幕")
+        print("              输入 cd {id} <Enter> 进入与编号为{id}的用户|群聊聊天，如 cd 25")
+        print("              输入 group {id} {id2} {id3} ... <Enter> 进入群发模式，消息将发送给id id2 id3...指定的所有人")
+        print("              输入 group -inverse {id} {id2} {id3} ... <Enter> 进入反选群发模式，消息将发送给除了id id2 id3 之外的所有人")
+        print("              在聊天模式中输入 cd .. <Enter> 退出到主界面")
+        print("              输入 reload <Enter>重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）")
 
 
     def h(self,arg):
