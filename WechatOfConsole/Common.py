@@ -32,6 +32,7 @@ class History(object):
     输入历史，所有的输入历史都保存在这里。 类似一个队列 
     - 上--previous 获取上一个  
     - 下--next 获取下一个 
+    - 每次有输入调用append
     '''
     def __init__(self):
         self.index = 0
@@ -68,3 +69,9 @@ class History(object):
 
 # 输入历史
 history = History()
+
+def td_input():
+    msg = input()
+    history.append(msg)
+    return msg
+

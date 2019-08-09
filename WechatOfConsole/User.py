@@ -10,7 +10,7 @@ import itchat
 from itchat.content import *
 
 from MyCommand import Cmd
-from Common import user_type_dict,type_dict
+from Common import user_type_dict,type_dict,history,td_input
 
 class Msg(object):
     def __init__(self,msg,type):
@@ -104,7 +104,6 @@ class Users(object):
         threading.Thread(target=itchat.run).start()             # 线程启动run实现
         self.loadUserList(itchat.get_friends(),'f')             # 加载好友
         self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
-        self.user_dict[0].userName = 'filehelper'               # 将0号处理为文件助手
 
     @classmethod
     def instance(cls,*args,**kwargs):
@@ -119,7 +118,7 @@ class Users(object):
         try:
             while True:
                 print(">>> ",end = '')
-                cmd = input().strip() # 获取字符去除前后空格
+                cmd = td_input().strip() # 获取字符去除前后空格
                 if cmd == '':    # 输入无效内容，直接跳过
                     continue
                 if cmd == 'exit':
@@ -203,13 +202,13 @@ class Users(object):
         type : 好友信息是 f 群聊消息是 r
         '''
         user = self.getUserByUserName(msg.FromUserName)
-        if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
-            return
-        if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
-            return
         if msg['ToUserName'] == 'filehelper': # 文件助手发送来的消息，做特殊处理
             user = self.getUserByID(0)
-        if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
+        elif msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
+            return
+        elif msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
+            return
+        if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
             return
         if msg['FromUserName'] == 'filehelper': 
             return 
