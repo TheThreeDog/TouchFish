@@ -10,7 +10,7 @@ import itchat
 from itchat.content import *
 
 from MyCommand import Cmd
-from Common import user_type_dict,type_dict
+from Common import user_type_dict,type_dict,history,td_input
 
 class Msg(object):
     def __init__(self,msg,type):
@@ -24,8 +24,14 @@ class Msg(object):
             self.text = type_dict[msg.Type]
         # 根据不同类型做不同判断
         if "u" == type:
-            self.nickName = msg.User.NickName   # 消息发送者昵称
-            self.remarkName = msg.User.RemarkName   # 消息发送者备注
+            if "NickName" not in msg.User:
+                self.nickName = msg.User.UserName
+            else :
+                self.nickName = msg.User.NickName   # 消息发送者昵称
+            if "RemarkName" not in msg.User:
+                self.remarkName = msg.User.UserName
+            else :
+                self.remarkName = msg.User.RemarkName   # 消息发送者备注
             self.userName = msg.User.UserName    # 用户名，是微信接口中的id，唯一。
         elif "r" == type:
             user = Users.instance().getUserByUserName(msg.ActualUserName)
@@ -112,7 +118,7 @@ class Users(object):
         try:
             while True:
                 print(">>> ",end = '')
-                cmd = input().strip() # 获取字符去除前后空格
+                cmd = td_input().strip() # 获取字符去除前后空格
                 if cmd == '':    # 输入无效内容，直接跳过
                     continue
                 if cmd == 'exit':
@@ -196,18 +202,20 @@ class Users(object):
         type : 好友信息是 f 群聊消息是 r
         '''
         user = self.getUserByUserName(msg.FromUserName)
+        if msg['ToUserName'] == 'filehelper': # 文件助手发送来的消息，做特殊处理
+            user = self.getUserByID(0)
+        elif msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
+            return
+        elif msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
+            return
         if msg['FromUserName'] == 'newsapp': # 忽略掉腾讯新闻消息
             return
-        if msg['ToUserName'] == 'filehelper': # 忽略掉发给文件助手的
-            return
-        if msg['ToUserName'] != self.selfUser.userName: # 忽略掉发送目标不是自己的
-            return
-        if msg['FromUserName'] == self.selfUser.userName: # 忽略掉自己发来的消息（否则发送给群聊的消息会被排入队列）
-            return
-        m = Msg(msg,type)
+        if msg['FromUserName'] == 'filehelper': 
+            return 
         if user is not None:
+            m = Msg(msg,type)
             if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
-                print("\n【{}】{} ===> ：{}\n>>> 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+                print("\n【{}】{} ===> ：{}\n 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
             else:                           # 如果不是的话，直接排入消息队列
                 user.addMsg(m)
 
