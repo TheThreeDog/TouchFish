@@ -163,8 +163,6 @@ def auto_flush(func):
         return f
     return inner
     
-
-
 @auto_flush
 def td_print(*msgs,end="\n"):
     print(*msgs,end=end)
@@ -210,7 +208,7 @@ def down():
     td_print("按了↓箭头")
 
 @register_func(CmdType.CMD_CTRL_C)
-def ctrl_c():
+def ctrl_c():#这个是ctrl-c  直接返回，效果上则是丢弃了当前行的内容。           
     td_print("^C")
     return ""
 
@@ -220,19 +218,13 @@ def td_input():
     try:
         while True: 
             ch = getch()
-            # print(type(ch))
-            if ch== 3 : 
-                #这个是ctrl-c  直接返回，效果上则是丢弃了当前行的内容。                
+            if ch == 3: # ctrl-c
                 return func_dict[CmdType.CMD_CTRL_C]()
 
             if ch == 13: # 回车
                 td_print()
                 return "".join(msg)
-            if ch == 127: # 删除最后一个字符
-                if 0 != len(msg):
-                    msg.pop()
-                td_flush(msg)
-                continue 
+
             if ch == 27:        # 控制指令
                 ch = getch()
                 if ch == 91 :
@@ -245,10 +237,46 @@ def td_input():
                         func_dict[CmdType.CMD_RIGHT]()
                     if ch == 68 : # ←
                         func_dict[CmdType.CMD_LEFT]()
+                    if ch == 70 : # END
+                        func_dict[CmdType.CMD_END]()
+                    if ch == 72 : # HOME
+                        func_dict[CmdType.CMD_HOME]()
+                    if ch == 50:  # INSERT
+                        if ch == 126:
+                            func_dict[CmdType.CMD_INSERT]()
+                        continue
+                    if ch == 51:  # DELETE
+                        if ch == 126:
+                            func_dict[CmdType.CMD_DELETE]()
+                        continue
+                    if ch == 53:  # PAGE_UP
+                        if ch == 126:
+                            func_dict[CmdType.CMD_PAGE_UP]()
+                        continue
+                    if ch == 54:  # PAGE_DOWN
+                        if ch == 126:
+                            func_dict[CmdType.CMD_PAGE_DOWN]()
+                        continue
+                    continue
+                continue
+
+            # 其余范围1~27的，直接调用
+            if ch in range(1,28):
+                func_dict[ch]()
+                continue
+
+            elif ch == 127: # 删除最后一个字符
+                if 0 != len(msg):
+                    msg.pop()
+                td_flush(msg)
+                continue 
+
             else : # 输入内容
                 msg.append(chr(ch))
                 td_flush(msg)
                 continue
+                
+
     except KeyError as e:
         td_print(e)
         td_print("键值错误！尚未给此控制指令注册回调函数，请使用@register_func注册再调用")
