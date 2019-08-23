@@ -2,6 +2,7 @@
 # Data       : 2019-06-12
 # Function   : 共同包，存放一些公共的定义，主要是程序中用到文字转化的地方
 
+from tdinput import td_input
 
 # 消息类型，转化成对应的消息类型显示
 type_dict = {
@@ -38,23 +39,29 @@ class History(object):
         self.index = 0
         self.history = []
     
-    def previous(self):
+    def next(self):
         '''
         获取下一条
         '''
-        if self.index == (len(self.history) - 1):
-            # 已经到了最后一条
+        if len(self.history) == 0:
             return ""
-        return self.history[self.index + 1]
+        if self.index >= (len(self.history) - 1):
+            # 已经到了最后一条
+            return self.history[-1]
+        self.index += 1
+        return self.history[self.index]
     
-    def next(self):
+    def previous(self):
         '''
         获取上一条
         '''
-        if self.index == 0:
-            # 已经到了第一条
+        if len(self.history) == 0:
             return ""
-        return self.history[self.index - 1]
+        if self.index <= 0:
+            # 已经到了第一条
+            return self.history[0]
+        self.index -= 1
+        return self.history[self.index]
     
     def append(self,cmd):
         '''
@@ -70,8 +77,8 @@ class History(object):
 # 输入历史
 history = History()
 
-def td_input():
-    msg = input()
+def minput():
+    msg = td_input()
     history.append(msg)
     return msg
 

@@ -10,7 +10,9 @@ import itchat
 from itchat.content import *
 
 from MyCommand import Cmd
-from Common import user_type_dict,type_dict,history,td_input
+from Common import user_type_dict,type_dict,history,minput
+from tdinput import register_func,CmdType,td_print,td_flush
+from tdinput import set_msg , set_index
 
 class Msg(object):
     def __init__(self,msg,type):
@@ -118,7 +120,7 @@ class Users(object):
         try:
             while True:
                 print(">>> ",end = '')
-                cmd = td_input().strip() # 获取字符去除前后空格
+                cmd = minput().strip() # 获取字符去除前后空格
                 if cmd == '':    # 输入无效内容，直接跳过
                     continue
                 if cmd == 'exit':
@@ -215,7 +217,7 @@ class Users(object):
         if user is not None:
             m = Msg(msg,type)
             if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
-                print("\n【{}】{} ===> ：{}\n 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+                td_print("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
             else:                           # 如果不是的话，直接排入消息队列
                 user.addMsg(m)
 
@@ -237,3 +239,23 @@ def recv_msg(msg):
     获取到好友发送来的消息
     '''
     Users.instance().handelMsg(msg,'u')
+
+@register_func(CmdType.CMD_UP)
+def up():
+    '''
+    按下了↑按键，显示历史列表中的上一条记录
+    '''
+    m = list(history.previous())
+    set_msg(m)
+    set_index(len(m))
+    td_flush(m)
+
+@register_func(CmdType.CMD_DOWN)
+def down():
+    '''
+    按下了↓按键，显示历史列表中的下一条记录
+    '''
+    m = list(history.next())
+    set_msg(m)
+    set_index(len(m))
+    td_flush(m)

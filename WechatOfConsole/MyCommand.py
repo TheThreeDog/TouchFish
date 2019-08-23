@@ -5,8 +5,8 @@
 # 函数调用的操作对象均是用户列表，因此传入将users列表作为parent参数传入
 
 from Common import cmd_list
-from Common import history,td_input
-
+from Common import history
+from tdinput import td_input
 
 class Cmd(object):
     def __init__(self,parent=None):
@@ -113,7 +113,7 @@ class Cmd(object):
 
     def clear(self,arg): # 同上
         print("\033c",end='')
-    
+
     def reload(self,arg):
         self.parent.reloadUserList()
 
@@ -179,9 +179,8 @@ class Cmd(object):
         print("              在聊天模式中输入 cd .. <Enter> 退出到主界面")
         print("              输入 reload <Enter>重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）")
 
-
     def h(self,arg):
         self.help(arg)
-    
+
     def man(self,arg):
         self.help(arg)
