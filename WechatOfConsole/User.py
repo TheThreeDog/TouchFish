@@ -12,7 +12,7 @@ from itchat.content import *
 from MyCommand import Cmd
 from Common import user_type_dict,type_dict,history,minput
 from tdinput import register_func,CmdType,td_print,td_flush
-from tdinput import set_msg , set_index
+from tdinput import set_msg , set_index , has_msg
 
 class Msg(object):
     def __init__(self,msg,type):
@@ -20,10 +20,11 @@ class Msg(object):
         初始化消息内容，参数是从itchat接收到的msg内容。
         '''
         self.createTime = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(msg.CreateTime)) # 创建时间
-        self.text = msg.Text    # 数据内容
+        self.text = msg.Text            # 数据内容
         self.remarkName = ''
         if msg.Type in type_dict:   # 根据数据类型做特殊处理
             self.text = type_dict[msg.Type]
+        self.text = self.text.replace("\n","\n\033[99999999999999999D") # 将换行替换掉，因为出现换行要重新定位光标到行首 
         # 根据不同类型做不同判断
         if "u" == type:
             if "NickName" not in msg.User:
@@ -216,8 +217,12 @@ class Users(object):
             return 
         if user is not None:
             m = Msg(msg,type)
-            if user == self.current_user:  # 如果当时正在和这个人聊天 ,直接打印消息
-                td_print("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+            if user == self.current_user:  # 如果当时正在和这个人聊天 
+                if not has_msg(): # 如果输入区为空的话,直接打印消息
+                    td_print("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+                    td_print("\033[s",end="")  # 保存光标位置
+                else :
+                    user.addMsg(m)
             else:                           # 如果不是的话，直接排入消息队列
                 user.addMsg(m)
 

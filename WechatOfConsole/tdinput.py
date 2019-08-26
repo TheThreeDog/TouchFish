@@ -316,3 +316,7 @@ def set_msg(m):
 def set_index(i):
     global index
     index = i
+
+def has_msg():
+    global msg
+    return True if len(msg) != 0 else False
