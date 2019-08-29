@@ -184,3 +184,15 @@ class Cmd(object):
 
     def man(self,arg):
         self.help(arg)
+
+    def ignore(self,arg):
+        '''
+        忽略指定的消息 , 命令示例： 
+            - ignore 123 忽略掉id为123的用户发送来的所有消息
+            - ignore all 忽略掉所有消息
+        '''
+        if len(arg) == 0:
+            print("参数错误，请重试")
+            return
+
+        self.parent.ignore(arg[0])

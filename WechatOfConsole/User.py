@@ -12,7 +12,7 @@ from itchat.content import *
 from MyCommand import Cmd
 from Common import user_type_dict,type_dict,history,minput
 from tdinput import register_func,CmdType,td_print,td_flush
-from tdinput import set_msg , set_index , has_msg
+from tdinput import set_msg , set_index , has_msg, td_input
 
 class Msg(object):
     def __init__(self,msg,type):
@@ -229,6 +229,38 @@ class Users(object):
     def sendMsg(self,msg,username):
         itchat.send(msg,toUserName=username)
 
+    def ignore(self,arg):
+        '''
+        忽略掉对应的内容
+        '''    
+        if arg == 'all':    # 忽略掉所有消息
+            print("确认忽略所有未读消息吗？y or n")
+            res = td_input()
+            if res == 'y' or res == 'yes':
+                # 忽略所有
+                pass      
+            else:
+                return
+
+        else:
+            try:
+                uid = int(arg)
+            except Exception as e:
+                print("参数错误，请重试")
+                return 
+            uid
+            arg == '-f':    # ls -f 好友列表
+            print("好友列表：")
+            for user in filter(lambda x : x.type == '【好友】' , self.parent.getUsers()):
+                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
+
+        elif arg[0] == '-r':    # ls -f 群聊列表
+            print("群聊列表：")
+            for user in filter(lambda x : x.type == '【群聊】' , self.parent.getUsers()):
+                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
+
+        else :
+            print('参数错误，请重试')
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
 def recv_group_msg(msg):
