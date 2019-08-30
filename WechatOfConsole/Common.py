@@ -71,7 +71,7 @@ class History(object):
         # 如果长度超过了2000，把数组截断以下子
         if len(self.history) > 2000:
             self.history = self.history[1:2000]
-        self.index = len(self.history) - 1
+        self.index = len(self.history)
 
 
 # 输入历史

@@ -238,29 +238,21 @@ class Users(object):
             res = td_input()
             if res == 'y' or res == 'yes':
                 # 忽略所有
-                pass      
+                for user in self.getUsers():
+                    user.msgs.clear()
             else:
                 return
-
         else:
             try:
                 uid = int(arg)
-            except Exception as e:
+            except Exception :
                 print("参数错误，请重试")
                 return 
-            uid
-            arg == '-f':    # ls -f 好友列表
-            print("好友列表：")
-            for user in filter(lambda x : x.type == '【好友】' , self.parent.getUsers()):
-                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
+            if uid not in self.user_dict:
+                print("参数错误，请重试")
+                return  
+            self.getUserByID(uid).msgs.clear()
 
-        elif arg[0] == '-r':    # ls -f 群聊列表
-            print("群聊列表：")
-            for user in filter(lambda x : x.type == '【群聊】' , self.parent.getUsers()):
-                print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
-
-        else :
-            print('参数错误，请重试')
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING,PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
 def recv_group_msg(msg):
