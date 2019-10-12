@@ -23,7 +23,7 @@
 2. 控制台搜罗段子小程序：FunnySprite
 
 ## 外部项目清单
-- 暂无
+- 命令行斗地主：`https://gitee.com/ainilili/ratel`
 
 # English Version
 > CET4 no pass, translate not good , please excuse .
