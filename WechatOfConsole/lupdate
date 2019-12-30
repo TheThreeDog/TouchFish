@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+import os
+import sys
+import json
+# 更新翻译文件，遍历当前文件夹下所有的.py文件，提取所有的tr()生成字典
+
+def get_end_index(s):
+    if s.count(")") == 0:
+        return -1
+    if s.count(")") == 1:
+        return s.find(")") - 1
+    if s.count(")") > 1:
+        l = 0
+        i = 0
+        while i < len(s) - 1:
+            if s[i] == "(":
+                l += 1
+            elif s[i] == ")":
+                l -= 1
+                if l < 0:
+                    break
+            i += 1 
+        return i-1 #把末尾的引号去掉
+            
+
+
+def traversal_path(real_path):
+    '''
+    遍历文件夹，返回一个列表，列表中存放所有遍历出的文件的全路径
+    '''
+    if os.path.split(real_path)[1] == "translator.py":
+        return 
+    global context ,ids
+    if not os.path.isdir(real_path) or os.path.islink(real_path): #不是文件夹，或者是软连接， 防止软连接链接本目录造成递归
+        # 是python文件
+        if real_path.endswith(".py") or real_path.endswith(".python"):
+            with open(real_path) as f:
+                for line in f.readlines():
+                    while "tdtr(" in line:
+                        data = {}    
+                        i1 = line.find("tdtr(")
+                        i2 = get_end_index(line[i1+6:])
+                        if i2 < 0 :
+                            continue
+                        data["msgid"] = line[i1+6:i1+i2+6]
+                        data["msgstr"] = line[i1+6:i1+i2+6]
+
+                        if data["msgid"] not in ids:# 如果原文件没有这个词条的翻译才添加
+                            context.append(data)
+                        
+                        line = line[i1+i2+6:]
+        return 
+    # 如果这是一个文件夹
+    for file_name in os.listdir(real_path): # 递归查找
+        try:
+            traversal_path(os.path.join(real_path,file_name))
+        except PermissionError:
+            print("无权限访问路径：",real_path)
+            continue
+
+
+if __name__ == "__main__":
+    '''
+    # 遍历文件
+    # 如果是.py或者.python
+        # readline
+            # 如果包含tr(记下下标， 
+            # 找对应的)记下下标 
+            # msgid = line[:]
+            # 如果原来字典中没有的话
+            # 存入字典
+    '''
+    with open(sys.argv[1],"a+") as f :
+        f.seek(0)
+        content = f.read()
+        if len(content) > 0:
+            context = list(json.loads(content))
+        else :
+            context = []
+        
+        ids = [i['msgid'] for i in context ]
+
+        traversal_path(os.getcwd())
+        json_str = json.dumps(context,sort_keys=True,indent=4, ensure_ascii=False,separators=(',',':'))
+
+        f.seek(0)
+        f.truncate()
+        f.write(json_str)

@@ -3,17 +3,21 @@
 # Function   : 共同包，存放一些公共的定义，主要是程序中用到文字转化的地方
 
 from tdinput import td_input
+from translator import translator,tdtr
+
+# 翻译机、默认加载中文
+translator.load("zh_CN.ts")
 
 # 消息类型，转化成对应的消息类型显示
 type_dict = {
-    'Map':'[定位]',
-    'Card':'[名片推荐]',
-    'Note':'[系统消息]',
-    'Sharing':'[公众号链接]',
-    'Picture':'[图片]',
-    'Recording':'[语音]',
-    'Attachment':'[文件]',
-    'Video':'[视频]'
+    'Map':tdtr('[定位]'),
+    'Card':tdtr('[名片推荐]'),
+    'Note':tdtr('[系统消息]'),
+    'Sharing':tdtr('[公众号链接]'),
+    'Picture':tdtr('[图片]'),
+    'Recording':tdtr('[语音]'),
+    'Attachment':tdtr('[文件]'),
+    'Video':tdtr('[视频]')
 }
 
 # linux常用命令，用于防止用户误输入被发送到聊天
@@ -24,8 +28,8 @@ language = {}
 
 # 群聊还是个人
 user_type_dict = {
-    'r':'【群聊】',
-    'f':'【好友】',
+    'r':tdtr('【群聊】'),
+    'f':tdtr('【好友】'),
 }
 
 class History(object):

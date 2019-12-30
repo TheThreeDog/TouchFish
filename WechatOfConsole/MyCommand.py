@@ -7,6 +7,7 @@
 from Common import cmd_list
 from Common import history
 from tdinput import td_input
+from translator import tdtr
 
 class Cmd(object):
     def __init__(self,parent=None):

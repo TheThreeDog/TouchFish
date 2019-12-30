@@ -3,6 +3,7 @@ import sys
 import tty, termios 
 import time   
 from enum import Enum,unique
+from translator import tdtr
 
 """
 输入控制，三级狗自研输入引擎，所有的输入前都由此td_print控制，手动实现上下左右按键触发，指令触发和输入回显的逻辑！
@@ -160,7 +161,7 @@ def register_func(cmd):                 # 注册装饰器， 使用方法 @regis
             func_dict[member] = default_handler
     def outer(func):
         if cmd not in CmdType:
-            td_print("注册类型错误！CmdType中不包含此类型，请在类中添加")
+            td_print(tdtr("注册类型错误！CmdType中不包含此类型，请在类中添加"))
             exit(-1)
         func_dict[cmd] = func 
         def register(*args,**kwargs):
