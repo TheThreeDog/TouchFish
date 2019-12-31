@@ -19,38 +19,38 @@ class Cmd(object):
         '''
         if len(arg) == 0:         # ls 没有参数：获取所有消息列表
             if not self.parent.hasNewMsg():  # 没有新消息
-                print("消息列表为空")
+                print(tdtr("消息列表为空"))
             else:
                 for user in self.parent.getUsers():
                     if user.hasNewMsg(): # 消息列表必须不为空
                         # 如果消息列表不为空，就把这个人的消息都打印出来
-                        print("【id:{:^3} 】 {:^10} 发来 {:^3} 条未读消息".format(user.id,user.getName(),len(user.msgs)))
+                        print(tdtr("【id:{:^3} 】 {:^10} 发来 {:^3} 条未读消息").format(user.id,user.getName(),len(user.msgs)))
 
         elif arg[0] == '-a':    # ls -a 获取全部好友 + 群聊
-            print("好友 | 群聊列表：")
+            print(tdtr("好友 | 群聊列表："))
             for user in self.parent.getUsers():
                 print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
 
         elif arg[0] == '-f':    # ls -f 好友列表
-            print("好友列表：")
-            for user in filter(lambda x : x.type == '【好友】' , self.parent.getUsers()):
+            print(tdtr("好友列表："))
+            for user in filter(lambda x : x.type == tdtr('【好友】') , self.parent.getUsers()):
                 print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
 
         elif arg[0] == '-r':    # ls -f 群聊列表
-            print("群聊列表：")
-            for user in filter(lambda x : x.type == '【群聊】' , self.parent.getUsers()):
+            print(tdtr("群聊列表："))
+            for user in filter(lambda x : x.type == tdtr('【群聊】') , self.parent.getUsers()):
                 print(" {:^4}：{:^4} {:^3} ".format(user.id,user.type,user.getName()))
 
 
         else :
-            print('参数错误，请重试')
+            print(tdtr('参数错误，请重试'))
 
     def cd(self,arg):
         '''
         进入聊天室， cd {id}  进入与id进行聊天的界面
         '''
         if len(arg) == 0 :
-            print("cd命令需要参数")
+            print(tdtr("cd命令需要参数"))
             return
         elif arg[0] == '..':
             # 返回主页
@@ -59,7 +59,7 @@ class Cmd(object):
             try:
                 user_id = int(arg[0])
             except Exception :
-                print("cd后请输入一个数字")
+                print(tdtr("cd后请输入一个数字"))
                 return
             user = self.parent.getUserByID(user_id)
             self.parent.current_user = user
@@ -70,7 +70,7 @@ class Cmd(object):
                 while user.hasNewMsg():
                     msg = user.takeMsg()
                     print("【{}】{} ===> ：{}".format(msg.createTime,msg.getName(),msg.text))
-                print(" 与 {} 聊天中 >>> ".format(user.getName()),end = '')
+                print(tdtr(" 与 {} 聊天中 >>> ").format(user.getName()),end = '')
                 msg = td_input()
                 if msg == 'cd ..':
                     # 退出聊天，把当前正在沟通的用户置为None
@@ -78,7 +78,7 @@ class Cmd(object):
                     break
                 # 如果输入内容包含疑似cmd字符串，这个len不为0
                 if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
-                    print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
+                    print(tdtr("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n"))
                     res = td_input()
                     if res == 'y' or res == 'yes':
                         pass
@@ -95,11 +95,11 @@ class Cmd(object):
         通过字符串查找对象 , 命令示例： find 张三 李四 三级狗
         '''
         if len(arg) == 0:
-            print("参数错误，请重试")
+            print(tdtr("参数错误，请重试"))
             return
 
         result = []
-        print("查找到以下好友|群聊：")
+        print(tdtr("查找到以下好友|群聊："))
         for keywords in arg:        # 列表拆分  关键字进行模糊查询
             for user in self.parent.getUsers():
                 if keywords in user: # User的in重写过！
@@ -124,7 +124,7 @@ class Cmd(object):
         '''
         user_name_list = []
         if len(arg) == 0 :
-            print("请指定群发对象的id，例如： 'group 3 34 36 23 74'")
+            print(tdtr("请指定群发对象的id，例如： 'group 3 34 36 23 74'"))
             return
         elif arg[0] == '-inverse': # 反选模式，指定的好友不会收到消息。
             for uid in [x.id for x in self.parent.getUsers()]:
@@ -140,7 +140,7 @@ class Cmd(object):
                     continue 
                 user_name_list.append(self.parent.getUserByID(user_id).userName)
         while(True):
-            print("【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ".format(len(user_name_list)),end = '')
+            print(tdtr("【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ").format(len(user_name_list)),end = '')
             msg = td_input()
             if msg == 'cd ..':
                 # 退出聊天，把当前正在沟通的用户置为None
@@ -148,7 +148,7 @@ class Cmd(object):
                 break
             # 如果输入内容包含疑似cmd字符串，这个len不为0
             if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
-                print("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n")
+                print(tdtr("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n"))
                 res = td_input()
                 if res == 'y' or res == 'yes':
                     pass
@@ -172,6 +172,8 @@ class Cmd(object):
         print("              输入 ls -a <Enter> 显示所有好友 | 群聊")
         print("              输入 ls -f <Enter> 显示所有好友列表")
         print("              输入 ls -r <Enter> 显示所有群聊列表")
+        print("              输入 ignore {id} <Enter> 忽略编号为{id}的好友发来的消息")
+        print("              输入 ignore all 忽略掉所有消息")
         print("              输入 find XXX <Enter>：通过姓名模糊查询好友或群聊")
         print("              输入 cls 或 clear <Enter> ：清空屏幕")
         print("              输入 cd {id} <Enter> 进入与编号为{id}的用户|群聊聊天，如 cd 25")
@@ -193,7 +195,7 @@ class Cmd(object):
             - ignore all 忽略掉所有消息
         '''
         if len(arg) == 0:
-            print("参数错误，请重试")
+            print(tdtr("参数错误，请重试"))
             return
 
         self.parent.ignore(arg[0])

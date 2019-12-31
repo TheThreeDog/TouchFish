@@ -13,7 +13,7 @@ from MyCommand import Cmd
 from Common import user_type_dict,type_dict,history,minput
 from tdinput import register_func,CmdType,td_print,td_flush
 from tdinput import set_msg , set_index , has_msg, td_input
-
+from translator import tdtr
 class Msg(object):
     def __init__(self,msg,type):
         '''
@@ -43,7 +43,7 @@ class Msg(object):
             self.nickName = msg.ActualNickName   # 消息发送者昵称
             self.userName = msg.ActualUserName    # 用户名，是微信接口中的id，唯一。
         else :
-            print("消息类型参数错误，请重试")
+            print(tdtr("消息类型参数错误，请重试"))
 
     def getName(self):
         if self.remarkName == '':
@@ -129,7 +129,7 @@ class Users(object):
                     break
                 cmd = cmd.split(' ') # 命令去除前后空格后按空格分割
                 if cmd[0] not in dir(self.cmd):
-                    print("命令错误，请重试")
+                    print(tdtr("命令错误，请重试"))
                     continue
                 # 调用cmd所匹配的函数，通过反射的形式调用  即只要用户输入指令与函数名匹配即可调用。
                 getattr(self.cmd,cmd[0])(cmd[1:])
@@ -219,7 +219,7 @@ class Users(object):
             m = Msg(msg,type)
             if user == self.current_user:  # 如果当时正在和这个人聊天 
                 if not has_msg(): # 如果输入区为空的话,直接打印消息
-                    td_print("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D 与 {} 聊天中 >>> ".format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+                    td_print(tdtr("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D 与 {} 聊天中 >>> ").format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
                     td_print("\033[s",end="")  # 保存光标位置
                 else :
                     user.addMsg(m)
@@ -234,7 +234,7 @@ class Users(object):
         忽略掉对应的内容
         '''    
         if arg == 'all':    # 忽略掉所有消息
-            print("确认忽略所有未读消息吗？y or n")
+            print(tdtr("确认忽略所有未读消息吗？y or n"))
             res = td_input()
             if res == 'y' or res == 'yes':
                 # 忽略所有
@@ -246,10 +246,10 @@ class Users(object):
             try:
                 uid = int(arg)
             except Exception :
-                print("参数错误，请重试")
+                print(tdtr("参数错误，请重试"))
                 return 
             if uid not in self.user_dict:
-                print("参数错误，请重试")
+                print(tdtr("参数错误，请重试"))
                 return  
             self.getUserByID(uid).msgs.clear()
 

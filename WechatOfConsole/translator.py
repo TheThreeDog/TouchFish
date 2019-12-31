@@ -8,7 +8,7 @@ class Translator(object):
     翻译模块 做成一个单例，整个代码仅使用一个实例。
     '''
     def __init__(self):
-        self.transMap = {}
+        self.transMap = []
     
     def load(self,filePath):
         # 加载翻译，将目标文件按照json格式全部转化为字典
@@ -20,9 +20,10 @@ class Translator(object):
             exit(-1)
 
     def translate(self,srcStr):
-        if srcStr not in self.transMap:
-            return srcStr
-        return self.transMap[srcStr]
+        for json in self.transMap:
+            if srcStr == json['msgid']:
+                return json['msgstr']
+        return srcStr
 
     def tr(self,srcStr):
         return self.translate(srcStr)

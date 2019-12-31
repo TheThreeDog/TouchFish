@@ -20,8 +20,10 @@
     # 7、仅支持单行输入，一旦换行会有显示上的bug
 
 import User
+from translator import translator
 
 # 主程序
 if __name__ == '__main__':
-    users = User.Users.instance()            # 初始化好友列表 (单例模式)
-    users.exec()                        # 进入users的事件循环
+    translator.load("lang/zh_CN.ts")            # 翻译机、默认加载中文
+    users = User.Users.instance()               # 初始化好友列表 (单例模式)
+    users.exec()                                # 进入users的事件循环

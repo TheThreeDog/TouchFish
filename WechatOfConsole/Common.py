@@ -3,10 +3,7 @@
 # Function   : 共同包，存放一些公共的定义，主要是程序中用到文字转化的地方
 
 from tdinput import td_input
-from translator import translator,tdtr
-
-# 翻译机、默认加载中文
-translator.load("zh_CN.ts")
+from translator import tdtr
 
 # 消息类型，转化成对应的消息类型显示
 type_dict = {
@@ -22,9 +19,6 @@ type_dict = {
 
 # linux常用命令，用于防止用户误输入被发送到聊天
 cmd_list = ['pwd','ls','cd','grep','touch','rm','exit','bye','rm','vi',':wq',':q!',':Q!','cat','cp','mv','rmdir','mk','git','cls','clear','find']
-
-# 英文翻译
-language = {}
 
 # 群聊还是个人
 user_type_dict = {
