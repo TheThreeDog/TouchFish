@@ -23,7 +23,7 @@ class Msg(object):
         self.text = msg.Text            # 数据内容
         self.remarkName = ''
         if msg.Type in type_dict:   # 根据数据类型做特殊处理
-            self.text = type_dict[msg.Type]
+            self.text = tdtr(type_dict[msg.Type])
         self.text = self.text.replace("\n","\n\033[99999999999999999D") # 将换行替换掉，因为出现换行要重新定位光标到行首 
         # 根据不同类型做不同判断
         if "u" == type:
@@ -60,7 +60,7 @@ class User(object):
         self.userName = args[1]           # 微信指定的的唯一用户名
         self.nickName = args[2]           # 昵称
         self.remarkName = args[3]         # 备注
-        self.type = user_type_dict[args[4]] # 类型 f | r ---> 好友 | 群聊
+        self.type = tdtr(user_type_dict[args[4]]) # 类型 f | r ---> 好友 | 群聊
         self.msgs = []
 
     def addMsg(self,msg):

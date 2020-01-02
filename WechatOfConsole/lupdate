@@ -3,6 +3,23 @@ import os
 import sys
 import json
 
+'''
+主要逻辑：
+    判断参数，即要生成的文件名，如果不写默认为zh_CN.ts，如果写了必须是下面列表中的一种
+    光标置零读取文件内容
+    转成json列表保存
+    遍历当前目录下所有.py和.python结尾的文件
+        每个文件读取每一行
+        如果包含tdtr(记下下标，下标+6就是要翻译的字符串起始下标（+6是因为`tdtr(`外加一个字符串的引号） 
+        找对应的)记下下标。get_end_index获取的是在字符串内部的下标，+上面的tdtr(的起始下标再+6才可以 
+        拿到字符串判断这个字符串在不在那个列表当中
+        不在的话添加到这个列表当中
+    完成后，将这个json列表转成json字符串
+    文件光标置零  清空文件
+    写入json字符串 
+    完成翻译的提取
+'''
+
 support_names = r"""
 "en_US.ts",        #  英文 (美国) 
 "ar_AE.ts",        #  阿拉伯文 (阿拉伯联合酋长国) 
@@ -184,7 +201,7 @@ if __name__ == "__main__":
     if len(sys.argv) <= 1:
         fileName = "zh_CN.ts"
     else:
-        if sys.argv[1] in support_names:
+        if os.path.split(sys.argv[1])[1] in support_names:
             fileName = sys.argv[1]
         else:
             print("翻译文件名称错误，翻译文件必须遵循以下名称：",support_names)
