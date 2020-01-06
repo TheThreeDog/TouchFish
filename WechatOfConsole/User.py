@@ -180,7 +180,6 @@ class Users(object):
         通过ID获取用户
         '''
         if uid not in self.user_dict:
-            print("用户id不存在，请重试")
             return None
         return self.user_dict[uid]
 

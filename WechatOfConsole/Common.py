@@ -17,7 +17,7 @@ type_dict = {
     'Video':tdtr('[视频]')
 }
 
-# linux常用命令，用于防止用户误输入被发送到聊天
+# linux常用命令列表，用于防止用户误输入被发送到聊天
 cmd_list = ['pwd','ls','cd','grep','touch','rm','exit','bye','rm','vi',':wq',':q!',':Q!','cat','cp','mv','rmdir','mk','git','cls','clear','find']
 
 # 群聊还是个人

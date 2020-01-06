@@ -62,6 +62,9 @@ class Cmd(object):
                 print(tdtr("cd后请输入一个数字"))
                 return
             user = self.parent.getUserByID(user_id)
+            if user is None: # 未找到用户 直接返回
+                print(tdtr("用户id不存在，请重试"))
+                return 
             self.parent.current_user = user
             self.cls(None)
             # 进入与其聊天的死循环

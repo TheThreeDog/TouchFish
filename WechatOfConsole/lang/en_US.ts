@@ -110,5 +110,9 @@
     {
         "msgid":"确认忽略所有未读消息吗？y or n",
         "msgstr":"Are you sure you want to ignore all unread messages? y or n"
+    },
+    {
+        "msgid":"用户id不存在，请重试",
+        "msgstr":"User not found ，Please Try again"
     }
 ]
