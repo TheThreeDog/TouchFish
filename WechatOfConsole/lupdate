@@ -1,0 +1,223 @@
+#!/usr/bin/python3
+import os
+import sys
+import json
+
+'''
+主要逻辑：
+    判断参数，即要生成的文件名，如果不写默认为zh_CN.ts，如果写了必须是下面列表中的一种
+    光标置零读取文件内容
+    转成json列表保存
+    遍历当前目录下所有.py和.python结尾的文件
+        每个文件读取每一行
+        如果包含tdtr(记下下标，下标+6就是要翻译的字符串起始下标（+6是因为`tdtr(`外加一个字符串的引号） 
+        找对应的)记下下标。get_end_index获取的是在字符串内部的下标，+上面的tdtr(的起始下标再+6才可以 
+        拿到字符串判断这个字符串在不在那个列表当中
+        不在的话添加到这个列表当中
+    完成后，将这个json列表转成json字符串
+    文件光标置零  清空文件
+    写入json字符串 
+    完成翻译的提取
+'''
+
+support_names = r"""
+"en_US.ts",        #  英文 (美国) 
+"ar_AE.ts",        #  阿拉伯文 (阿拉伯联合酋长国) 
+"ar_BH.ts",        #  阿拉伯文 (巴林) 
+"ar_DZ.ts",        #  阿拉伯文 (阿尔及利亚) 
+"ar_EG.ts",        #  阿拉伯文 (埃及) 
+"ar_IQ.ts",        #  阿拉伯文 (伊拉克) 
+"ar_JO.ts",        #  阿拉伯文 (约旦) 
+"ar_KW.ts",        #  阿拉伯文 (科威特) 
+"ar_LB.ts",        #  阿拉伯文 (黎巴嫩) 
+"ar_LY.ts",        #  阿拉伯文 (利比亚) 
+"ar_MA.ts",        #  阿拉伯文 (摩洛哥) 
+"ar_OM.ts",        #  阿拉伯文 (阿曼) 
+"ar_QA.ts",        #  阿拉伯文 (卡塔尔) 
+"ar_SA.ts",        #  阿拉伯文 (沙特阿拉伯) 
+"ar_SD.ts",        #  阿拉伯文 (苏丹) 
+"ar_SY.ts",        #  阿拉伯文 (叙利亚) 
+"ar_TN.ts",        #  阿拉伯文 (突尼斯) 
+"ar_YE.ts",        #  阿拉伯文 (也门) 
+"be_BY.ts",        #  白俄罗斯文 (白俄罗斯) 
+"bg_BG.ts",        #  保加利亚文 (保加利亚) 
+"ca_ES.ts",        #  加泰罗尼亚文 (西班牙) 
+"ca_ES_EURO.ts",   #  加泰罗尼亚文 (西班牙,Euro) 
+"cs_CZ.ts",        #  捷克文 (捷克共和国) 
+"da_DK.ts",        #  丹麦文 (丹麦) 
+"de_AT.ts",        #  德文 (奥地利) 
+"de_AT_EURO.ts",   #  德文 (奥地利,Euro) 
+"de_CH.ts",        #  德文 (瑞士) 
+"de_DE.ts",        #  德文 (德国) 
+"de_DE_EURO.ts",   #  德文 (德国,Euro) 
+"de_LU.ts",        #  德文 (卢森堡) 
+"de_LU_EURO.ts",   #  德文 (卢森堡,Euro) 
+"el_GR.ts",        #  希腊文 (希腊) 
+"en_AU.ts",        #  英文 (澳大利亚) 
+"en_CA.ts",        #  英文 (加拿大) 
+"en_GB.ts",        #  英文 (英国) 
+"en_IE.ts",        #  英文 (爱尔兰) 
+"en_IE_EURO.ts",   #  英文 (爱尔兰,Euro) 
+"en_NZ.ts",        #  英文 (新西兰) 
+"en_ZA.ts",        #  英文 (南非) 
+"es_BO.ts",        #  西班牙文 (玻利维亚) 
+"es_AR.ts",        #  西班牙文 (阿根廷) 
+"es_CL.ts",        #  西班牙文 (智利) 
+"es_CO.ts",        #  西班牙文 (哥伦比亚) 
+"es_CR.ts",        #  西班牙文 (哥斯达黎加) 
+"es_DO.ts",        #  西班牙文 (多米尼加共和国) 
+"es_EC.ts",        #  西班牙文 (厄瓜多尔) 
+"es_ES.ts",        #  西班牙文 (西班牙) 
+"es_ES_EURO.ts",   #  西班牙文 (西班牙,Euro) 
+"es_GT.ts",        #  西班牙文 (危地马拉) 
+"es_HN.ts",        #  西班牙文 (洪都拉斯) 
+"es_MX.ts",        #  西班牙文 (墨西哥) 
+"es_NI.ts",        #  西班牙文 (尼加拉瓜) 
+"es_PA.ts",        #  西班牙文 (巴拿马) 
+"es_PE.ts",        #  西班牙文 (秘鲁) 
+"es_PR.ts",        #  西班牙文 (波多黎哥) 
+"es_PY.ts",        #  西班牙文 (巴拉圭) 
+"es_SV.ts",        #  西班牙文 (萨尔瓦多) 
+"es_UY.ts",        #  西班牙文 (乌拉圭) 
+"es_VE.ts",        #  西班牙文 (委内瑞拉) 
+"et_EE.ts",        #  爱沙尼亚文 (爱沙尼亚) 
+"fi_FI.ts",        #  芬兰文 (芬兰) 
+"fi_FI_EURO.ts",   #  芬兰文 (芬兰,Euro) 
+"fr_BE.ts",        #  法文 (比利时) 
+"fr_BE_EURO.ts",   #  法文 (比利时,Euro) 
+"fr_CA.ts",        #  法文 (加拿大) 
+"fr_CH.ts",        #  法文 (瑞士) 
+"fr_FR.ts",        #  法文 (法国) 
+"fr_FR_EURO.ts",   #  法文 (法国,Euro) 
+"fr_LU.ts",        #  法文 (卢森堡) 
+"fr_LU_EURO.ts",   #  法文 (卢森堡,Euro) 
+"hr_HR.ts",        #  克罗地亚文 (克罗地亚) 
+"hu_HU.ts",        #  匈牙利文 (匈牙利) 
+"is_IS.ts",        #  冰岛文 (冰岛) 
+"it_CH.ts",        #  意大利文 (瑞士) 
+"it_IT.ts",        #  意大利文 (意大利) 
+"it_IT_EURO.ts",   #  意大利文 (意大利,Euro) 
+"iw_IL.ts",        #  希伯来文 (以色列) 
+"ja_JP.ts",        #  日文 (日本) 
+"ko_KR.ts",        #  朝鲜文 (南朝鲜) 
+"lt_LT.ts",        #  立陶宛文 (立陶宛)
+"lv.ts",           #  拉托维亚文(列托) 
+"lv_LV.ts",        #  拉托维亚文(列托) (拉脱维亚) 
+"mk_MK.ts",        #  马其顿文 (马其顿王国) 
+"nl_BE.ts",        #  荷兰文 (比利时) 
+"nl_BE_EURO.ts",   #  荷兰文 (比利时,Euro) 
+"nl_NL.ts",        #  荷兰文 (荷兰) 
+"nl_NL_EURO.ts",   # 荷兰文 (荷兰,Euro) 
+"no_NO.ts",        #  挪威文 (挪威) 
+"no_NO_NY.ts",     #  挪威文 (挪威,Nynorsk) 
+"pl_PL.ts",        #  波兰文 (波兰) 
+"pt_BR.ts",        #  葡萄牙文 (巴西) 
+"pt_PT.ts",        #  葡萄牙文 (葡萄牙) 
+"pt_PT_EURO.ts",   #  葡萄牙文 (葡萄牙,Euro) 
+"ro_RO.ts",        #  罗马尼亚文 (罗马尼亚) 
+"ru_RU.ts",        #  俄文 (俄罗斯) 
+"sh_YU.ts",        #  塞波尼斯-克罗地亚文 (南斯拉夫) 
+"sk_SK.ts",        #  斯洛伐克文 (斯洛伐克) 
+"sl_SI.ts",        #  斯洛文尼亚文 (斯洛文尼亚) 
+"sq_AL.ts",        #  阿尔巴尼亚文 (阿尔巴尼亚) 
+"sr_YU.ts",        #  塞尔维亚文 (南斯拉夫) 
+"sv_SE.ts",        #  瑞典文 (瑞典) 
+"th_TH.ts",        #  泰文 (泰国) 
+"tr_TR.ts",        #  土耳其文 (土耳其) 
+"uk_UA.ts",        #  乌克兰文 (乌克兰) 
+"zh_CN.ts",        #  中文 (中国) 
+"zh_HK.ts",        #  中文 (香港) 
+"zh_TW.ts",        #  中文 (台湾)
+"""
+
+# 更新翻译文件，遍历当前文件夹下所有的.py文件，提取所有的tr()生成字典
+
+def get_end_index(s):
+    if s.count(")") == 0:
+        return -1
+    if s.count(")") == 1:
+        return s.find(")") - 1
+    if s.count(")") > 1:
+        l = 0
+        i = 0
+        while i < len(s) - 1:
+            if s[i] == "(":
+                l += 1
+            elif s[i] == ")":
+                l -= 1
+                if l < 0:
+                    break
+            i += 1 
+        return i-1 #把末尾的引号去掉
+            
+
+
+def traversal_path(real_path):
+    '''
+    遍历文件夹，返回一个列表，列表中存放所有遍历出的文件的全路径
+    '''
+    if os.path.split(real_path)[1] == "translator.py":
+        return 
+    global context
+    if not os.path.isdir(real_path) or os.path.islink(real_path): #不是文件夹，或者是软连接， 防止软连接链接本目录造成递归
+        # 是python文件
+        if real_path.endswith(".py") or real_path.endswith(".python"):
+            with open(real_path) as f:
+                for line in f.readlines():
+                    while "tdtr(" in line:
+                        data = {}    
+                        i1 = line.find("tdtr(")
+                        i2 = get_end_index(line[i1+6:])
+                        if i2 < 0 :
+                            continue
+                        data["msgid"] = line[i1+6:i1+i2+6]
+                        data["msgstr"] = line[i1+6:i1+i2+6]
+
+                        if data["msgid"] not in [i['msgid'] for i in context ]:# 如果context中没有这个词条的翻译才添加
+                            context.append(data)
+                        
+                        line = line[i1+i2+6:]
+        return 
+    # 如果这是一个文件夹
+    for file_name in os.listdir(real_path): # 递归查找
+        try:
+            traversal_path(os.path.join(real_path,file_name))
+        except PermissionError:
+            print("无权限访问路径：",real_path)
+            continue
+
+
+if __name__ == "__main__":
+    '''
+    # 遍历文件
+    # 如果是.py或者.python
+        # readline
+            # 如果包含tr(记下下标， 
+            # 找对应的)记下下标 
+            # msgid = line[:]
+            # 如果原来字典中没有的话
+            # 存入字典
+    '''
+    if len(sys.argv) <= 1:
+        fileName = "zh_CN.ts"
+    else:
+        if os.path.split(sys.argv[1])[1] in support_names:
+            fileName = sys.argv[1]
+        else:
+            print("翻译文件名称错误，翻译文件必须遵循以下名称：",support_names)
+            exit(-1)
+
+    with open(fileName,"a+") as f :
+        f.seek(0)
+        content = f.read()
+        if len(content) > 0:
+            context = list(json.loads(content))
+        else :
+            context = []
+    
+        traversal_path(os.getcwd())
+        json_str = json.dumps(context,sort_keys=True,indent=4, ensure_ascii=False,separators=(',',':'))
+
+        f.seek(0)
+        f.truncate()
+        f.write(json_str)
