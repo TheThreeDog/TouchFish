@@ -6,6 +6,7 @@
 
 from Common import cmd_list
 from Common import history
+from Common import emoj_list
 from tdinput import td_input
 from translator import tdtr
 
@@ -75,10 +76,19 @@ class Cmd(object):
                     print("【{}】{} ===> ：{}".format(msg.createTime,msg.getName(),msg.text))
                 print(tdtr(" 与 {} 聊天中 >>> ").format(user.getName()),end = '')
                 msg = td_input()
-                if msg == 'cd ..':
+                if msg.strip() == 'cd ..':
                     # 退出聊天，把当前正在沟通的用户置为None
                     self.parent.current_user = None
                     break
+                if msg.strip() == "emoj":
+                    print(tdtr("检测到您的输入为：emoj，如果发送消息内容即为emoj直接回车键发送，如果查看所有emoj表情，请输入1："))
+                    res = td_input()
+                    if res != "1":
+                        pass
+                    else:
+                        print(emoj_list)
+                        continue
+
                 # 如果输入内容包含疑似cmd字符串，这个len不为0
                 if len(list(filter(lambda x:True if x in msg else False,cmd_list))) > 0:
                     print(tdtr("您的输入中包含疑似shell终端命令的字符串，确认发送此消息吗？y or n"))
@@ -120,6 +130,10 @@ class Cmd(object):
 
     def reload(self,arg):
         self.parent.reloadUserList()
+    
+    def emoj(self,arg): # 显示所有可用的emoj表情
+        print(tdtr("所有可用表情如下，在消息中直接添加即可发送："))
+        print(emoj_list)
 
     def group(self,arg):
         '''

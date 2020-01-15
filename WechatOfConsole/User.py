@@ -218,7 +218,7 @@ class Users(object):
             m = Msg(msg,type)
             if user == self.current_user:  # 如果当时正在和这个人聊天 
                 if not has_msg(): # 如果输入区为空的话,直接打印消息
-                    td_print(tdtr("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D 与 {} 聊天中 >>> ").format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
+                    td_print(("\n\033[99999999999999999D【{}】{} ===> ：{}\n\033[99999999999999999D"+tdtr(" 与 {} 聊天中 >>> ")).format(m.createTime,m.getName(),m.text,self.current_user.getName()),end="")
                     td_print("\033[s",end="")  # 保存光标位置
                 else :
                     user.addMsg(m)

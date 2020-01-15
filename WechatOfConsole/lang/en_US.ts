@@ -92,8 +92,8 @@
         "msgstr":"Please specify the ids of the friends who you want broadcast , for example: 'group 3 34 36 23 74'"
     },
     {
-        "msgid":"【群发模式】选定的{}位好友将收到此条信息 \\n请输入要发送的内容，输入“cd ..”退出\\n>>> ",
-        "msgstr":"【Broadcast Mode】{} friends will receive this message \\nPlease enter what you want to send, enter 'cd ..' to exit\\n>>> "
+        "msgid":"【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ",
+        "msgstr":"【Broadcast Mode】{} friends will receive this message \nPlease enter what you want to send, enter 'cd ..' to exit\n>>> "
     },
     {
         "msgid":"消息类型参数错误，请重试",
@@ -104,15 +104,19 @@
         "msgstr":"Command error，please try again"
     },
     {
-        "msgid":"\\n\\033[99999999999999999D【{}】{} ===> ：{}\\n\\033[99999999999999999D 与 {} 聊天中 >>> ",
-        "msgstr":"\\n\\033[99999999999999999D【{}】{} ===> ：{}\\n\\033[99999999999999999D Chatting with {} >>> "
-    },
-    {
         "msgid":"确认忽略所有未读消息吗？y or n",
         "msgstr":"Are you sure you want to ignore all unread messages? y or n"
     },
     {
         "msgid":"用户id不存在，请重试",
         "msgstr":"User not found ，Please Try again"
+    },
+    {
+        "msgid":"检测到您的输入为：emoj，如果发送消息内容即为emoj直接回车键发送，如果查看所有emoj表情，请输入1：",
+        "msgstr":"The string 'emoj' is included in your input . press Enter to send this message and press 1 Enter to show all emoj available："
+    },
+    {
+        "msgid":"所有可用表情如下，在消息中直接添加即可发送：",
+        "msgstr":"All available emoj are as follows. It can be sent by adding directly to the message:"
     }
 ]
