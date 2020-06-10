@@ -10,7 +10,7 @@ import itchat
 from itchat.content import *
 
 from MyCommand import Cmd
-from Common import user_type_dict,type_dict,history,minput
+from Common import user_type_dict,type_dict,history,minput,log_message
 from tdinput import register_func,CmdType,td_print,td_flush
 from tdinput import set_msg , set_index , has_msg, td_input
 from translator import tdtr
@@ -91,6 +91,12 @@ class User(object):
         return e.userName == self.userName
 
 
+def itchatrun():
+    try:
+        itchat.run()
+    except Exception as e:
+        log_message(e)
+
 class Users(object):
     '''
     保存所有用户和群聊，并且提供所有的相关操作
@@ -104,7 +110,7 @@ class Users(object):
         self.cmd = Cmd(self)        # 初始化一个命令管理器， 此命令管理器管理所有的命令
 
         itchat.auto_login(hotReload=True,enableCmdQR = 2,exitCallback=itchat.logout) #登录并记录登录状态
-        threading.Thread(target=itchat.run).start()             # 线程启动run实现
+        threading.Thread(target=itchatrun).start()             # 线程启动run实现
         self.loadUserList(itchat.get_friends(),'f')             # 加载好友
         self.loadUserList(itchat.get_chatrooms(),'r')           # 加载群聊
 
@@ -135,7 +141,8 @@ class Users(object):
                 getattr(self.cmd,cmd[0])(cmd[1:])
 
         except Exception as e:
-            print(e)
+            log_message("运行阶段遇到错误：")
+            log_message(e)
             itchat.logout()
 
     def addUser(self,user,type):
