@@ -6,13 +6,14 @@
 # Requests   : 
     #   - pip install itchat
     # 7、仅支持单行输入，一旦换行会有显示上的bug
-import sys
+import platform
 
-if sys.platform.lower() != 'linux':
-    print("不支持的平台：{}".format(sys.platform))
+if platform.system().lower() != 'linux':
+    print("不支持的平台：{}".format(platform.system().lower()))
     exit(0)
 
 import User
+import sys
 from translator import translator
 
 # 主程序
