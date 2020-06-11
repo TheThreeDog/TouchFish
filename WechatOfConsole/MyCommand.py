@@ -53,7 +53,7 @@ class Cmd(object):
         if len(arg) == 0 :
             print(tdtr("cd命令需要参数"))
             return
-        elif arg[0] == '..':
+        elif arg[0] == '..' or arg[0] == '../':
             # 返回主页
             return
         else:
@@ -76,7 +76,7 @@ class Cmd(object):
                     print("【{}】{} ===> ：{}".format(msg.createTime,msg.getName(),msg.text))
                 print(tdtr(" 与 {} 聊天中 >>> ").format(user.getName()),end = '')
                 msg = td_input()
-                if msg.strip() == 'cd ..':
+                if msg.strip() == 'cd ..' or msg.strip() == 'cd ../':
                     # 退出聊天，把当前正在沟通的用户置为None
                     self.parent.current_user = None
                     break
@@ -159,7 +159,7 @@ class Cmd(object):
         while(True):
             print(tdtr("【群发模式】选定的{}位好友将收到此条信息 \n请输入要发送的内容，输入“cd ..”退出\n>>> ").format(len(user_name_list)),end = '')
             msg = td_input()
-            if msg == 'cd ..':
+            if msg == 'cd ..' or msg == 'cd ../':
                 # 退出聊天，把当前正在沟通的用户置为None
                 self.parent.current_user = None
                 break
@@ -196,7 +196,7 @@ class Cmd(object):
         print("              输入 cd {id} <Enter> 进入与编号为{id}的用户|群聊聊天，如 cd 25")
         print("              输入 group {id} {id2} {id3} ... <Enter> 进入群发模式，消息将发送给id id2 id3...指定的所有人")
         print("              输入 group -inverse {id} {id2} {id3} ... <Enter> 进入反选群发模式，消息将发送给除了id id2 id3 之外的所有人")
-        print("              在聊天模式中输入 cd .. <Enter> 退出到主界面")
+        print("              在聊天模式中输入 cd .. 或 cd ../ <Enter> 退出到主界面")
         print("              输入 reload <Enter>重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）")
 
     def h(self,arg):
