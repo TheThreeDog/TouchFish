@@ -118,5 +118,9 @@
     {
         "msgid":"所有可用表情如下，在消息中直接添加即可发送：",
         "msgstr":"All available emoj are as follows. It can be sent by adding directly to the message:"
+    },
+    {
+        "msgid":"不支持的平台：{}",
+        "msgstr":"Unsupport platform : {}"
     }
 ]
