@@ -6,19 +6,17 @@
 # Requests   : 
     #   - pip install itchat
     # 7、仅支持单行输入，一旦换行会有显示上的bug
+import sys
+
+if sys.platform.lower() != 'linux':
+    print("不支持的平台：{}".format(sys.platform))
+    exit(0)
 
 import User
 from translator import translator
-import sys
-from Common import tdtr
 
 # 主程序
 if __name__ == '__main__':
-    
-    if sys.platform.lower() != 'linux':
-        print(tdtr("不支持的平台：{}").format(sys.platform))
-        exit(0)
-
     with open(".errorlog","a+") as f:           # 从定向错误输出
         sys.stderr = f     
     translator.load("lang/en_US.ts")            # 翻译机、默认加载中文
