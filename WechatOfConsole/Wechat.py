@@ -9,9 +9,12 @@
 
 import User
 from translator import translator
+import sys
 
 # 主程序
 if __name__ == '__main__':
+    with open(".errorlog","a+") as f:           # 从定向错误输出
+        sys.stderr = f     
     translator.load("lang/en_US.ts")            # 翻译机、默认加载中文
     users = User.Users.instance()               # 初始化好友列表 (单例模式)
     users.exec()                                # 进入users的事件循环
