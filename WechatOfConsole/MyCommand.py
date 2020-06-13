@@ -198,6 +198,7 @@ class Cmd(object):
         print("              输入 group -inverse {id} {id2} {id3} ... <Enter> 进入反选群发模式，消息将发送给除了id id2 id3 之外的所有人")
         print("              在聊天模式中输入 cd .. 或 cd ../ <Enter> 退出到主界面")
         print("              输入 reload <Enter>重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）")
+        print("              输入 emoj <Enter> 显示所有可用的表情")
 
     def h(self,arg):
         self.help(arg)

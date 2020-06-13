@@ -30,13 +30,25 @@ request.md：需求列表，用于记录需求的提出，实现，以及发布�
 1. 终端下执行：`python3 Wechat.py`
 2. 运行后使用手机微信扫码登录
 3. 登陆后指令：
-    - 'ls': 显示所有未读消息.
-    - 'ls -f':显示所有的好友|群聊列表,
-    - 'find XXX':通过姓名查找模糊查找好友或群聊,
-    - 'cd {id}':进入与id为{id}的用户或群聊聊天,
-    - 'cd ..':退出当前聊天返回上一级,
-    - 'cls'：清空屏幕,
-    - 'exit'：退出程序,
+```txt
+输入 help 或 h 或 man <Enter>      查看说明！
+
+输入 exit <Enter> 退出
+输入 ls <Enter> 显示所有未读消息
+输入 ls -a <Enter> 显示所有好友 | 群聊
+输入 ls -f <Enter> 显示所有好友列表
+输入 ls -r <Enter> 显示所有群聊列表
+输入 ignore {id} <Enter> 忽略编号为{id}的好友发来的消息
+输入 ignore all 忽略掉所有消息
+输入 find XXX <Enter>：通过姓名模糊查询好友或群聊
+输入 cls 或 clear <Enter> ：清空屏幕
+输入 cd {id} <Enter> 进入与编号为{id}的用户|群聊聊天，如 cd 25
+输入 group {id} {id2} {id3} ... <Enter> 进入群发模式，消息将发送给id id2 id3...指定的所有人
+输入 group -inverse {id} {id2} {id3} ... <Enter> 进入反选群发模式，消息将发送给除了id id2 id3 之外的所有人
+在聊天模式中输入 cd .. 或 cd ../ <Enter> 退出到主界面
+输入 reload <Enter>重新加载好友和群聊列表（如果在程序运行期间用微信加入了新的群聊或好友，执行此函数可将新成员加载如列表）
+输入 emoj <Enter> 显示所有可用的表情
+```
 
 ## 开源协议:
 - MIT
