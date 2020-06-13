@@ -4,7 +4,6 @@
 
 from tdinput import td_input
 from translator import tdtr
-from time import ctime
 
 # 消息类型，转化成对应的消息类型显示
 type_dict = {
@@ -196,8 +195,3 @@ def minput():
     history.append(msg)
     return msg
 
-def log_message(arg):
-    with open(".errorlog","a+") as f:
-        f.write("DEBUG 【{}】 ===> ".format(ctime()))
-        f.write("{}\n".format(arg))
-        
