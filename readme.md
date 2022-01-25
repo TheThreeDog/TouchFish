@@ -24,7 +24,7 @@
 
 ## 外部项目清单
 - 命令行斗地主：`https://gitee.com/ainilili/ratel`
-- 命令行小说阅读器：`https://github.com/ForkFG/TerminalXbqg`
+- 命令行小说阅读器：`https://github.com/ForkKILLET/TerminalXbqg`
 
 # English Version
 > CET4 no pass, translate not good , please excuse .
